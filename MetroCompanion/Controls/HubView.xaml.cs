@@ -118,7 +118,7 @@ public partial class HubView : ContentView
         }
 
         // snap 产生的 Scrolled 事件直接忽略，防止循环触发
-        if (DateTime.Now - _lastSnapTime < TimeSpan.FromMilliseconds(300))
+        if (DateTime.Now - _lastSnapTime < TimeSpan.FromMilliseconds(500))
             return;
 
         _snapTimer?.Stop();
@@ -137,7 +137,7 @@ public partial class HubView : ContentView
         if (Math.Abs(targetX - scrollX) < 1) return;
 
         _lastSnapTime = DateTime.Now;
-        _scrollView.ScrollToAsync(targetX, 0, false);
+        _scrollView.ScrollToAsync(targetX, 0, true);
     }
 
     private double CalculateNearestSection(double currentScrollX)
