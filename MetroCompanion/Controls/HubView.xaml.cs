@@ -19,10 +19,12 @@ public partial class HubView : ContentView
     public static readonly BindableProperty BackgroundSourceProperty = BindableProperty.Create(nameof(BackgroundSource), typeof(ImageSource), typeof(HubView));
     public static readonly BindableProperty IsParallaxEnabledProperty = BindableProperty.Create(nameof(IsParallaxEnabled), typeof(bool), typeof(HubView), true);
     public static readonly BindableProperty IsPanoramaModeProperty = BindableProperty.Create(nameof(IsPanoramaMode), typeof(bool), typeof(HubView), false, propertyChanged: OnIsPanoramaModeChanged);
+    public static readonly BindableProperty SnapThresholdProperty = BindableProperty.Create(nameof(SnapThreshold), typeof(double), typeof(HubView), 0.2);
 
     public ImageSource BackgroundSource { get => (ImageSource)GetValue(BackgroundSourceProperty); set => SetValue(BackgroundSourceProperty, value); }
     public bool IsParallaxEnabled { get => (bool)GetValue(IsParallaxEnabledProperty); set => SetValue(IsParallaxEnabledProperty, value); }
     public bool IsPanoramaMode { get => (bool)GetValue(IsPanoramaModeProperty); set => SetValue(IsPanoramaModeProperty, value); }
+    public double SnapThreshold { get => (double)GetValue(SnapThresholdProperty); set => SetValue(SnapThresholdProperty, value); }
 
     public ObservableCollection<HubSection> Sections { get; } = new();
 
@@ -119,7 +121,6 @@ public partial class HubView : ContentView
             _parallaxBg.TranslationX = parallaxOffset;
         }
 
-        // 动画期间和 snap 冷却期间忽略
         if (_isAnimating || DateTime.Now - _lastSnapTime < TimeSpan.FromMilliseconds(200))
             return;
 
@@ -134,11 +135,47 @@ public partial class HubView : ContentView
         if (_scrollView == null || _sectionsContainer == null) return;
 
         double scrollX = _scrollView.ScrollX;
-        double targetX = CalculateNearestSection(scrollX);
+        var (snapTarget, _) = FindSnapTarget(scrollX);
 
-        if (Math.Abs(targetX - scrollX) < 1) return;
+        if (snapTarget < 0) return;
 
-        _ = AnimateSnap(scrollX, targetX);
+        _ = AnimateSnap(scrollX, snapTarget);
+    }
+
+    private (double targetX, double sectionWidth) FindSnapTarget(double scrollX)
+    {
+        if (_sectionsContainer == null || _sectionsContainer.Children.Count == 0)
+            return (-1, 0);
+
+        double accumulated = 0;
+        double currentSectionStart = 0;
+        double currentSectionWidth = 0;
+        bool foundCurrent = false;
+
+        foreach (var child in _sectionsContainer.Children)
+        {
+            if (child is HubSection section)
+            {
+                if (!foundCurrent && scrollX >= accumulated - 1)
+                {
+                    currentSectionStart = accumulated;
+                    currentSectionWidth = section.WidthRequest;
+                    foundCurrent = true;
+                }
+                accumulated += section.WidthRequest;
+            }
+        }
+
+        double threshold = currentSectionWidth * SnapThreshold;
+        double distToCurrent = Math.Abs(scrollX - currentSectionStart);
+        double distToNext = Math.Abs(scrollX - (currentSectionStart + currentSectionWidth));
+
+        if (distToNext < threshold)
+            return (currentSectionStart + currentSectionWidth, currentSectionWidth);
+        if (distToCurrent < threshold)
+            return (currentSectionStart, currentSectionWidth);
+
+        return (-1, currentSectionWidth);
     }
 
     private async Task AnimateSnap(double startX, double targetX)
@@ -168,35 +205,6 @@ public partial class HubView : ContentView
     private static double CubicOut(double t)
     {
         return 1.0 - Math.Pow(1.0 - t, 3);
-    }
-
-    private double CalculateNearestSection(double currentScrollX)
-    {
-        if (_sectionsContainer == null || _sectionsContainer.Children.Count == 0)
-            return 0;
-
-        double accumulated = 0;
-        double bestX = 0;
-        double bestDistance = double.MaxValue;
-
-        foreach (var child in _sectionsContainer.Children)
-        {
-            if (child is HubSection section)
-            {
-                double distance = Math.Abs(currentScrollX - accumulated);
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    bestX = accumulated;
-                }
-                accumulated += section.WidthRequest;
-            }
-        }
-
-        double maxScroll = accumulated - (_scrollView?.Width ?? 0);
-        if (maxScroll < 0) maxScroll = 0;
-
-        return Math.Clamp(bestX, 0, maxScroll);
     }
 
     public async Task PlayEntranceAnimation()
