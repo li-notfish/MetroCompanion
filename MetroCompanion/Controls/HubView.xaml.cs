@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using Microsoft.Maui.Dispatching;
 
 namespace MetroCompanion.Controls;
 
@@ -11,7 +12,7 @@ public partial class HubView : ContentView
     private HorizontalStackLayout _sectionsContainer;
 
     private bool _isSnapping;
-    private DispatcherTimer _snapTimer;
+    private IDispatcherTimer _snapTimer;
 
     public static readonly BindableProperty BackgroundSourceProperty = BindableProperty.Create(nameof(BackgroundSource), typeof(ImageSource), typeof(HubView));
     public static readonly BindableProperty IsParallaxEnabledProperty = BindableProperty.Create(nameof(IsParallaxEnabled), typeof(bool), typeof(HubView), true);
@@ -28,9 +29,20 @@ public partial class HubView : ContentView
         InitializeComponent();
         Sections.CollectionChanged += OnSectionsChanged;
         SizeChanged += (s, e) => UpdateLayout();
+        this.Unloaded += OnUnloaded;
 
-        _snapTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+        _snapTimer = Application.Current.Dispatcher.CreateTimer();
+        _snapTimer.Interval = TimeSpan.FromMilliseconds(300);
         _snapTimer.Tick += OnSnapTimerTick;
+    }
+
+    private void OnUnloaded(object sender, EventArgs e)
+    {
+        _snapTimer?.Stop();
+        _snapTimer = null;
+
+        if (_scrollView != null)
+            _scrollView.Scrolled -= OnScrolled;
     }
 
     protected override void OnApplyTemplate()
@@ -83,7 +95,6 @@ public partial class HubView : ContentView
     {
         if (Width <= 0 || _sectionsContainer == null) return;
 
-        // Peek: 每个 section 占屏幕一部分，下一个 section 露出
         double ratio = DeviceInfo.Current.Idiom == DeviceIdiom.Phone ? 0.80 : 0.65;
         double targetWidth = Width * ratio;
 
@@ -100,15 +111,13 @@ public partial class HubView : ContentView
 
     private void OnScrolled(object sender, ScrolledEventArgs e)
     {
-        // 视差效果
         if (IsParallaxEnabled && _parallaxBg != null)
         {
             double parallaxOffset = -e.ScrollX * 0.1;
             _parallaxBg.TranslationX = parallaxOffset;
         }
 
-        // Snap: 滚动停止后吸附到最近的 section
-        if (_isSnapping) return;
+        if (_isSnapping || _snapTimer == null) return;
 
         _snapTimer.Stop();
         _snapTimer.Start();
@@ -116,7 +125,7 @@ public partial class HubView : ContentView
 
     private void OnSnapTimerTick(object sender, EventArgs e)
     {
-        _snapTimer.Stop();
+        if (_snapTimer != null) _snapTimer.Stop();
 
         if (_scrollView == null || _sectionsContainer == null) return;
 
@@ -128,7 +137,6 @@ public partial class HubView : ContentView
         _isSnapping = true;
         _scrollView.ScrollToAsync(targetX, 0, false);
 
-        // 给一点时间让滚动完成，然后重置标志
         Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(50), () => _isSnapping = false);
     }
 
@@ -155,7 +163,6 @@ public partial class HubView : ContentView
             }
         }
 
-        // 边界检查：不超过最大滚动范围
         double maxScroll = accumulated - (_scrollView?.Width ?? 0);
         if (maxScroll < 0) maxScroll = 0;
 
@@ -184,15 +191,5 @@ public partial class HubView : ContentView
                 delay += 100;
             }
         }
-    }
-
-    protected override void OnDetachingFrom(BindableObject bindingContext)
-    {
-        base.OnDetachingFrom(bindingContext);
-        _snapTimer?.Stop();
-        _snapTimer = null;
-
-        if (_scrollView != null)
-            _scrollView.Scrolled -= OnScrolled;
     }
 }
