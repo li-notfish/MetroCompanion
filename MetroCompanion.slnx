@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MetroCompanion/MetroCompanion.csproj" />
+  <Project Path="MetroCompanionDemo/MetroCompanionDemo.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>

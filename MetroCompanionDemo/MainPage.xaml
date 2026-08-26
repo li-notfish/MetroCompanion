@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MetroCompanionDemo.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion">
+    <mcm:HubView BackgroundSource="bg.jpg">
+        <mcm:HubSection Title="旅程">
+            <CollectionView ItemsSource="{Binding Tg}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding .}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </mcm:HubSection>
+        <mcm:HubSection Title="日记">
+            <CollectionView ItemsSource="{Binding Tg}">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding .}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </mcm:HubSection>
+        <mcm:HubSection Title="动态" />
+        <mcm:HubSection Title="我的" />
+    </mcm:HubView>
+</ContentPage>
