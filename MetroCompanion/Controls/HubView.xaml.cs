@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 
 namespace MetroCompanion.Controls;
 
@@ -10,6 +9,9 @@ public partial class HubView : ContentView
     private Image _parallaxBg;
     private ScrollView _scrollView;
     private HorizontalStackLayout _sectionsContainer;
+
+    private bool _isSnapping;
+    private DispatcherTimer _snapTimer;
 
     public static readonly BindableProperty BackgroundSourceProperty = BindableProperty.Create(nameof(BackgroundSource), typeof(ImageSource), typeof(HubView));
     public static readonly BindableProperty IsParallaxEnabledProperty = BindableProperty.Create(nameof(IsParallaxEnabled), typeof(bool), typeof(HubView), true);
@@ -26,6 +28,9 @@ public partial class HubView : ContentView
         InitializeComponent();
         Sections.CollectionChanged += OnSectionsChanged;
         SizeChanged += (s, e) => UpdateLayout();
+
+        _snapTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+        _snapTimer.Tick += OnSnapTimerTick;
     }
 
     protected override void OnApplyTemplate()
@@ -95,11 +100,66 @@ public partial class HubView : ContentView
 
     private void OnScrolled(object sender, ScrolledEventArgs e)
     {
-        if (!IsParallaxEnabled || _parallaxBg == null) return;
+        // 视差效果
+        if (IsParallaxEnabled && _parallaxBg != null)
+        {
+            double parallaxOffset = -e.ScrollX * 0.1;
+            _parallaxBg.TranslationX = parallaxOffset;
+        }
 
-        // 柔和视差: 系数从 0.15 降到 0.1
-        double parallaxOffset = -e.ScrollX * 0.1;
-        _parallaxBg.TranslationX = parallaxOffset;
+        // Snap: 滚动停止后吸附到最近的 section
+        if (_isSnapping) return;
+
+        _snapTimer.Stop();
+        _snapTimer.Start();
+    }
+
+    private void OnSnapTimerTick(object sender, EventArgs e)
+    {
+        _snapTimer.Stop();
+
+        if (_scrollView == null || _sectionsContainer == null) return;
+
+        double scrollX = _scrollView.ScrollX;
+        double targetX = CalculateNearestSection(scrollX);
+
+        if (Math.Abs(targetX - scrollX) < 1) return;
+
+        _isSnapping = true;
+        _scrollView.ScrollToAsync(targetX, 0, false);
+
+        // 给一点时间让滚动完成，然后重置标志
+        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(50), () => _isSnapping = false);
+    }
+
+    private double CalculateNearestSection(double currentScrollX)
+    {
+        if (_sectionsContainer == null || _sectionsContainer.Children.Count == 0)
+            return 0;
+
+        double accumulated = 0;
+        double bestX = 0;
+        double bestDistance = double.MaxValue;
+
+        foreach (var child in _sectionsContainer.Children)
+        {
+            if (child is HubSection section)
+            {
+                double distance = Math.Abs(currentScrollX - accumulated);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    bestX = accumulated;
+                }
+                accumulated += section.WidthRequest;
+            }
+        }
+
+        // 边界检查：不超过最大滚动范围
+        double maxScroll = accumulated - (_scrollView?.Width ?? 0);
+        if (maxScroll < 0) maxScroll = 0;
+
+        return Math.Clamp(bestX, 0, maxScroll);
     }
 
     public async Task PlayEntranceAnimation()
@@ -124,5 +184,15 @@ public partial class HubView : ContentView
                 delay += 100;
             }
         }
+    }
+
+    protected override void OnDetachingFrom(BindableObject bindingContext)
+    {
+        base.OnDetachingFrom(bindingContext);
+        _snapTimer?.Stop();
+        _snapTimer = null;
+
+        if (_scrollView != null)
+            _scrollView.Scrolled -= OnScrolled;
     }
 }
