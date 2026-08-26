@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using Microsoft.Maui.Dispatching;
 
 namespace MetroCompanion.Controls;
@@ -13,6 +14,7 @@ public partial class HubView : ContentView
 
     private IDispatcherTimer _snapTimer;
     private DateTime _lastSnapTime = DateTime.MinValue;
+    private bool _isAnimating;
 
     public static readonly BindableProperty BackgroundSourceProperty = BindableProperty.Create(nameof(BackgroundSource), typeof(ImageSource), typeof(HubView));
     public static readonly BindableProperty IsParallaxEnabledProperty = BindableProperty.Create(nameof(IsParallaxEnabled), typeof(bool), typeof(HubView), true);
@@ -117,8 +119,8 @@ public partial class HubView : ContentView
             _parallaxBg.TranslationX = parallaxOffset;
         }
 
-        // snap 产生的 Scrolled 事件直接忽略，防止循环触发
-        if (DateTime.Now - _lastSnapTime < TimeSpan.FromMilliseconds(500))
+        // 动画期间和 snap 冷却期间忽略
+        if (_isAnimating || DateTime.Now - _lastSnapTime < TimeSpan.FromMilliseconds(200))
             return;
 
         _snapTimer?.Stop();
@@ -136,8 +138,36 @@ public partial class HubView : ContentView
 
         if (Math.Abs(targetX - scrollX) < 1) return;
 
+        _ = AnimateSnap(scrollX, targetX);
+    }
+
+    private async Task AnimateSnap(double startX, double targetX)
+    {
+        if (_isAnimating || _scrollView == null) return;
+
+        _isAnimating = true;
         _lastSnapTime = DateTime.Now;
-        _scrollView.ScrollToAsync(targetX, 0, true);
+
+        const int durationMs = 150;
+        const int frameDelayMs = 16;
+        var sw = Stopwatch.StartNew();
+
+        while (sw.ElapsedMilliseconds < durationMs)
+        {
+            double progress = Math.Min((double)sw.ElapsedMilliseconds / durationMs, 1.0);
+            double eased = CubicOut(progress);
+            double currentX = startX + (targetX - startX) * eased;
+            _scrollView.ScrollToAsync(currentX, 0, false);
+            await Task.Delay(frameDelayMs);
+        }
+
+        _scrollView.ScrollToAsync(targetX, 0, false);
+        _isAnimating = false;
+    }
+
+    private static double CubicOut(double t)
+    {
+        return 1.0 - Math.Pow(1.0 - t, 3);
     }
 
     private double CalculateNearestSection(double currentScrollX)
