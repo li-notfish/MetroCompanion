@@ -3,28 +3,48 @@
     x:Class="MetroCompanionDemo.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion">
-    <mcm:HubView BackgroundSource="bg.jpg">
-        <mcm:HubSection Title="旅程">
-            <CollectionView ItemsSource="{Binding Tg}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Label Text="{Binding .}" />
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </mcm:HubSection>
-        <mcm:HubSection Title="日记">
-            <CollectionView ItemsSource="{Binding Tg}">
+    xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion"
+    BackgroundColor="Transparent">
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Label Text="{Binding .}" />
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </mcm:HubSection>
-        <mcm:HubSection Title="动态" />
-        <mcm:HubSection Title="我的" />
-    </mcm:HubView>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Button
+            x:Name="ModeToggleBtn"
+            Text="切换到 Panorama 模式"
+            Clicked="OnModeToggleClicked"
+            HorizontalOptions="End"
+            Margin="0,8,16,0"
+            BackgroundColor="#0078D4"
+            TextColor="White" />
+
+        <mcm:HubView
+            x:Name="Hub"
+            Grid.Row="1"
+            BackgroundSource="bg.jpg">
+            <mcm:HubSection Title="旅程">
+                <CollectionView ItemsSource="{Binding Tg}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding .}" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </mcm:HubSection>
+            <mcm:HubSection Title="日记">
+                <CollectionView ItemsSource="{Binding Tg}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Label Text="{Binding .}" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </mcm:HubSection>
+            <mcm:HubSection Title="动态" />
+            <mcm:HubSection Title="我的" />
+        </mcm:HubView>
+    </Grid>
 </ContentPage>

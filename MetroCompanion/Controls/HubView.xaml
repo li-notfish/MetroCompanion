@@ -18,7 +18,9 @@
                 <ScrollView
                     x:Name="PART_ScrollView"
                     HorizontalScrollBarVisibility="Never"
-                    Orientation="Horizontal">
+                    Orientation="Horizontal"
+                    SnapPointsType="Mandatory"
+                    SnapPointsAlignment="Start">
                     <ScrollView.Behaviors>
                         <OnPlatform x:TypeArguments="Behavior">
                             <On Platform="WinUI">
