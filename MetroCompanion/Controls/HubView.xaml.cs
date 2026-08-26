@@ -11,8 +11,8 @@ public partial class HubView : ContentView
     private ScrollView _scrollView;
     private HorizontalStackLayout _sectionsContainer;
 
-    private bool _isSnapping;
     private IDispatcherTimer _snapTimer;
+    private DateTime _lastSnapTime = DateTime.MinValue;
 
     public static readonly BindableProperty BackgroundSourceProperty = BindableProperty.Create(nameof(BackgroundSource), typeof(ImageSource), typeof(HubView));
     public static readonly BindableProperty IsParallaxEnabledProperty = BindableProperty.Create(nameof(IsParallaxEnabled), typeof(bool), typeof(HubView), true);
@@ -117,15 +117,17 @@ public partial class HubView : ContentView
             _parallaxBg.TranslationX = parallaxOffset;
         }
 
-        if (_isSnapping || _snapTimer == null) return;
+        // snap 产生的 Scrolled 事件直接忽略，防止循环触发
+        if (DateTime.Now - _lastSnapTime < TimeSpan.FromMilliseconds(300))
+            return;
 
-        _snapTimer.Stop();
-        _snapTimer.Start();
+        _snapTimer?.Stop();
+        _snapTimer?.Start();
     }
 
     private void OnSnapTimerTick(object sender, EventArgs e)
     {
-        if (_snapTimer != null) _snapTimer.Stop();
+        _snapTimer?.Stop();
 
         if (_scrollView == null || _sectionsContainer == null) return;
 
@@ -134,10 +136,8 @@ public partial class HubView : ContentView
 
         if (Math.Abs(targetX - scrollX) < 1) return;
 
-        _isSnapping = true;
+        _lastSnapTime = DateTime.Now;
         _scrollView.ScrollToAsync(targetX, 0, false);
-
-        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(50), () => _isSnapping = false);
     }
 
     private double CalculateNearestSection(double currentScrollX)
