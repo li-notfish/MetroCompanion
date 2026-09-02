@@ -6,8 +6,11 @@
     xmlns:behaviors="clr-namespace:MetroCompanion.Behaviores">
     <ContentView.ControlTemplate>
         <ControlTemplate>
-            <Grid Background="Transparent" IgnoreSafeArea="True">
+            <Grid Background="Transparent" IgnoreSafeArea="True"
+                  RowDefinitions="Auto, *">
+                <!-- 壁纸铺满全屏 -->
                 <Image
+                    Grid.RowSpan="2"
                     x:Name="PART_ParallaxBg"
                     Aspect="AspectFill"
                     HorizontalOptions="Start"
@@ -15,7 +18,16 @@
                     Source="{TemplateBinding BackgroundSource}"
                     ZIndex="-1" />
 
+                <!-- Header 区域（顶栏等，浮在壁纸上） -->
+                <ContentPresenter
+                    Grid.Row="0"
+                    x:Name="PART_HeaderPresenter"
+                    Content="{TemplateBinding Header}"
+                    ZIndex="2" />
+
+                <!-- Hub 内容区域 -->
                 <ScrollView
+                    Grid.Row="1"
                     x:Name="PART_ScrollView"
                     HorizontalScrollBarVisibility="Never"
                     Orientation="Horizontal">
