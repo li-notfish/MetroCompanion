@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-
 namespace MetroCompanionDemo
 {
     public partial class MainPage : ContentPage
@@ -11,12 +9,12 @@ namespace MetroCompanionDemo
             InitializeComponent();
 
             this.BindingContext = this;
-
-            foreach (string s in DemoData.Words)
-            {
-                Tg.Add(s);
-            }
         }
+
+        public IReadOnlyList<DemoItem> Trips => DemoData.Trips;
+        public IReadOnlyList<DemoItem> Diary => DemoData.Diary;
+        public IReadOnlyList<DemoItem> Feed => DemoData.Feed;
+        public IReadOnlyList<DemoItem> Mine => DemoData.Mine;
 
         private void OnModeToggleClicked(object sender, EventArgs e)
         {
@@ -27,10 +25,8 @@ namespace MetroCompanionDemo
 
         private async void OnItemTapped(object sender, TappedEventArgs e)
         {
-            if (sender is Label { BindingContext: string item })
-                await Shell.Current.GoToAsync($"{nameof(PivotDemoPage)}?item={Uri.EscapeDataString(item)}");
+            if (sender is BindableObject { BindingContext: DemoItem item })
+                await Shell.Current.GoToAsync($"{nameof(PivotDemoPage)}?item={Uri.EscapeDataString(item.Title)}");
         }
-
-        public ObservableCollection<string> Tg { get; set; } = new ObservableCollection<string>();
     }
 }

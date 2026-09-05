@@ -6,6 +6,61 @@
     xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion"
     BackgroundColor="Transparent">
 
+    <ContentPage.Resources>
+        <!-- Metro 磁贴：直角、平色，叠在壁纸上 -->
+        <DataTemplate x:Key="TileTemplate">
+            <Border
+                Margin="4"
+                HeightRequest="132"
+                BackgroundColor="{Binding TileColor}"
+                CornerRadius="0"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnItemTapped" />
+                </Border.GestureRecognizers>
+                <Grid
+                    Padding="16,12"
+                    ColumnDefinitions="*"
+                    RowDefinitions="Auto,Auto,*,Auto">
+                    <Label FontSize="22" Text="{Binding Title}" TextColor="White" />
+                    <Label
+                        Grid.Row="1"
+                        FontSize="13"
+                        Margin="0,2,0,0"
+                        Text="{Binding Subtitle}"
+                        TextColor="#B8FFFFFF" />
+                    <Label
+                        Grid.Row="3"
+                        FontSize="12"
+                        LineBreakMode="WordWrap"
+                        Text="{Binding Detail}"
+                        TextColor="#8CFFFFFF" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- 窄栏动态列表：紧凑行 -->
+        <DataTemplate x:Key="FeedRowTemplate">
+            <Grid Margin="4,7" ColumnDefinitions="Auto,*">
+                <BoxView
+                    Color="{DynamicResource MetroAccentColor}"
+                    HeightRequest="38"
+                    VerticalOptions="Center"
+                    WidthRequest="4" />
+                <StackLayout Grid.Column="1" Padding="12,0,0,0">
+                    <Label FontSize="17" Text="{Binding Title}" TextColor="White" />
+                    <Label
+                        FontSize="13"
+                        Text="{Binding Subtitle}"
+                        TextColor="#B8FFFFFF" />
+                </StackLayout>
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnItemTapped" />
+                </Grid.GestureRecognizers>
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -27,33 +82,44 @@
             PanoramaTitle="旅程"
             BackgroundSource="bg.jpg">
             <mcm:HubSection Title="旅程">
-                <CollectionView ItemsSource="{Binding Tg}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Label Text="{Binding .}">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnItemTapped" />
-                                </Label.GestureRecognizers>
-                            </Label>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
+                <CollectionView ItemsSource="{Binding Trips}" ItemTemplate="{StaticResource TileTemplate}">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout
+                            HorizontalItemSpacing="8"
+                            Orientation="Vertical"
+                            Span="2"
+                            VerticalItemSpacing="8" />
+                    </CollectionView.ItemsLayout>
                 </CollectionView>
             </mcm:HubSection>
             <mcm:HubSection Title="日记">
-                <CollectionView ItemsSource="{Binding Tg}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <Label Text="{Binding .}">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnItemTapped" />
-                                </Label.GestureRecognizers>
-                            </Label>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
+                <CollectionView ItemsSource="{Binding Diary}" ItemTemplate="{StaticResource TileTemplate}">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout
+                            HorizontalItemSpacing="8"
+                            Orientation="Vertical"
+                            Span="2"
+                            VerticalItemSpacing="8" />
+                    </CollectionView.ItemsLayout>
                 </CollectionView>
             </mcm:HubSection>
-            <mcm:HubSection Title="动态" WidthRequest="320" />
-            <mcm:HubSection Title="我的" />
+            <mcm:HubSection Title="动态" WidthRequest="320">
+                <CollectionView
+                    ItemsSource="{Binding Feed}"
+                    ItemTemplate="{StaticResource FeedRowTemplate}"
+                    Margin="0,0,0,0" />
+            </mcm:HubSection>
+            <mcm:HubSection Title="我的">
+                <CollectionView ItemsSource="{Binding Mine}" ItemTemplate="{StaticResource TileTemplate}">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout
+                            HorizontalItemSpacing="8"
+                            Orientation="Vertical"
+                            Span="2"
+                            VerticalItemSpacing="8" />
+                    </CollectionView.ItemsLayout>
+                </CollectionView>
+            </mcm:HubSection>
         </mcm:HubView>
     </Grid>
 </ContentPage>
