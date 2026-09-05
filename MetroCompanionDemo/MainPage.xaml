@@ -13,7 +13,6 @@
                 Margin="4"
                 HeightRequest="132"
                 BackgroundColor="{Binding TileColor}"
-                CornerRadius="0"
                 StrokeThickness="0">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnItemTapped" />
