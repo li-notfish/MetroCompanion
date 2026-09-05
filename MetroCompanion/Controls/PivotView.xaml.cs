@@ -34,7 +34,7 @@ public partial class PivotView : ContentView
     public static readonly BindableProperty HeaderForegroundProperty = BindableProperty.Create(nameof(HeaderForeground), typeof(Color), typeof(PivotView), Styles.MetroTokens.ForegroundColor, propertyChanged: OnHeaderAppearanceChanged);
     public static readonly BindableProperty UnselectedHeaderOpacityProperty = BindableProperty.Create(nameof(UnselectedHeaderOpacity), typeof(double), typeof(PivotView), Styles.MetroTokens.UnselectedHeaderOpacity);
     public static readonly BindableProperty HeaderMarginProperty = BindableProperty.Create(nameof(HeaderMargin), typeof(Thickness), typeof(PivotView), new Thickness(Styles.MetroTokens.PageMargin, 0, 0, 0), propertyChanged: OnHeaderLayoutChanged);
-    public static readonly BindableProperty HeaderSpacingProperty = BindableProperty.Create(nameof(HeaderSpacing), typeof(double), typeof(PivotView), 24.0, propertyChanged: OnHeaderLayoutChanged);
+    public static readonly BindableProperty HeaderSpacingProperty = BindableProperty.Create(nameof(HeaderSpacing), typeof(double), typeof(PivotView), Styles.MetroTokens.PivotHeaderItemSpacing, propertyChanged: OnHeaderLayoutChanged);
 
     public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(PivotView), 0, BindingMode.TwoWay, coerceValue: CoerceIndex, propertyChanged: OnSelectedIndexChanged);
     public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(PivotView), null, BindingMode.TwoWay, propertyChanged: OnSelectedItemChanged);

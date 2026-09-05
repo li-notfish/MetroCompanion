@@ -27,6 +27,11 @@ public static class MetroTokens
     // ---- 字号（桌面 / 手机两套，对应 WinRT 8.1 与 WP8.1 的默认值）----
     /// <summary>Pivot 表头：桌面 24（PivotHeaderItemFontSize），手机 57.5。</summary>
     public static double PivotHeaderItemFontSize => IsPhone ? 57.5 : 24;
+    /// <summary>
+    /// Pivot 表头间隙：原版 PivotHeaderItemMargin 为左右各 12（相邻间隙 24），随字号等比缩放。
+    /// 手机表头用 2.4 倍缩放规格（57.5），间隙同步放大（12×2×2.4 = 57.6）。
+    /// </summary>
+    public static double PivotHeaderItemSpacing => IsPhone ? 57.6 : 24;
     /// <summary>Pivot 大标题：桌面 46（HubHeaderThemeFontSize），手机 64。</summary>
     public static double PivotTitleFontSize => IsPhone ? 64 : 46;
     /// <summary>Hub 节标题（HubSectionHeaderThemeFontSize）。</summary>
