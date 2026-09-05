@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using MetroCompanion.Behaviores;
 using Microsoft.Maui.Dispatching;
 
 namespace MetroCompanion.Controls;
@@ -62,6 +63,12 @@ public partial class HubView : ContentView
         _sectionsContainer = GetTemplateChild("PART_SectionsContainer") as HorizontalStackLayout;
 
         if (_scrollView != null) _scrollView.Scrolled += OnScrolled;
+#if WINDOWS
+        // 滚轮行为以代码挂载：模板内 OnPlatform<Behavior> 在 Release AOT 下会
+        // 尝试实例化抽象 Behavior 导致崩溃
+        if (_scrollView != null && _scrollView.Behaviors.Count == 0)
+            _scrollView.Behaviors.Add(new HubHorizontalScrollBehavior());
+#endif
         RefreshSections();
 
         Dispatcher.Dispatch(() => UpdateLayout());

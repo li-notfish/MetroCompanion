@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using MetroCompanion.Behaviores;
 using Microsoft.Maui.Dispatching;
 
 namespace MetroCompanion.Controls;
@@ -97,6 +98,12 @@ public partial class PivotView : ContentView
 
         if (_scrollView != null)
             _scrollView.Scrolled += OnScrolled;
+#if WINDOWS
+        // 滚轮/方向键翻页行为以代码挂载：模板内 OnPlatform<Behavior> 在
+        // Release AOT 下会尝试实例化抽象 Behavior 导致崩溃
+        if (_scrollView != null && _scrollView.Behaviors.Count == 0)
+            _scrollView.Behaviors.Add(new HubHorizontalScrollBehavior { StepByPage = true });
+#endif
 
         RefreshItems();
 

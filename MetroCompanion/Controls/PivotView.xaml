@@ -2,8 +2,7 @@
 <ContentView
     x:Class="MetroCompanion.Controls.PivotView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:behaviors="clr-namespace:MetroCompanion.Behaviores">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
     <ContentView.ControlTemplate>
         <ControlTemplate>
             <Grid Background="Transparent"
@@ -27,19 +26,12 @@
                     <HorizontalStackLayout x:Name="PART_HeadersPanel" />
                 </ScrollView>
 
-                <!-- Pivot 内容区：整页横滑，始终吸附到某一页 -->
+                <!-- Pivot 内容区：整页横滑，始终吸附到某一页（滚轮/键盘行为在代码隐藏按平台挂载） -->
                 <ScrollView
                     Grid.Row="2"
                     x:Name="PART_ScrollView"
                     HorizontalScrollBarVisibility="Never"
                     Orientation="Horizontal">
-                    <ScrollView.Behaviors>
-                        <OnPlatform x:TypeArguments="Behavior">
-                            <On Platform="WinUI">
-                                <behaviors:HubHorizontalScrollBehavior StepByPage="True" />
-                            </On>
-                        </OnPlatform>
-                    </ScrollView.Behaviors>
                     <HorizontalStackLayout
                         x:Name="PART_ItemsContainer"
                         HorizontalOptions="Start"
