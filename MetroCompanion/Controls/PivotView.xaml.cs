@@ -25,6 +25,8 @@ public partial class PivotView : ContentView
     private bool _isSyncingSelection;
     private int _currentIndex;
     private double _pageWidth;
+    // 表头条带期望宽度是否需要重新测量（增删表头、字号/间距/边距变化时）
+    private bool _headerExtentDirty = true;
 
     public static readonly BindableProperty TitleProperty = BindableProperty.Create(nameof(Title), typeof(string), typeof(PivotView), string.Empty, propertyChanged: OnTitleChanged);
     public static readonly BindableProperty TitleFontSizeProperty = BindableProperty.Create(nameof(TitleFontSize), typeof(double), typeof(PivotView), Styles.MetroTokens.PivotTitleFontSize);
@@ -134,6 +136,7 @@ public partial class PivotView : ContentView
         foreach (var item in Items)
             _headersPanel.Children.Add(CreateHeaderView(item));
 
+        _headerExtentDirty = true;
         UpdateHeaderStrip(_scrollView?.ScrollX ?? 0);
     }
 
@@ -227,8 +230,9 @@ public partial class PivotView : ContentView
         double f = tc - k;
         double viewportWidth = _headersClip?.Width ?? 0;
         double marginLeft = HeaderMargin.Left;
-        double shiftA = GetHeaderShift(k, viewportWidth, marginLeft);
-        double shiftB = GetHeaderShift(Math.Min(k + 1, count - 1), viewportWidth, marginLeft);
+        double maxShift = Math.Max(0, EnsureHeaderStripWidth(viewportWidth) + marginLeft - viewportWidth);
+        double shiftA = GetHeaderShift(k, viewportWidth, marginLeft, maxShift);
+        double shiftB = GetHeaderShift(Math.Min(k + 1, count - 1), viewportWidth, marginLeft, maxShift);
         _headersPanel.TranslationX = -(shiftA + (shiftB - shiftA) * f);
 
         // 交叉淡化：滚动进度落在 i 与 i+1 之间时，二者在 1 与 UnselectedHeaderOpacity 间过渡
@@ -249,7 +253,7 @@ public partial class PivotView : ContentView
     /// 让表头 <paramref name="index"/> 完整落在视口内所需的最小条带左移量。
     /// 目标：表头右缘对齐视口右栅格（右缘 = 视口宽 - 左边距）。
     /// </summary>
-    private double GetHeaderShift(int index, double viewportWidth, double marginLeft)
+    private double GetHeaderShift(int index, double viewportWidth, double marginLeft, double maxShift)
     {
         if (viewportWidth <= 0 || index >= _headersPanel.Children.Count)
             return 0;
@@ -260,18 +264,30 @@ public partial class PivotView : ContentView
         double shift = Math.Max(0, pos + width + marginLeft - viewportWidth);
         // 条带右端（含右边距）最多收到视口右栅格：WP8.1 在最后一页时末表头
         // 完整可见，前面的表头被推出视口左缘（条带比视口宽时自然让位）
-        double maxShift = Math.Max(0, GetStripExtent() + marginLeft - viewportWidth);
         return Math.Min(shift, maxShift);
     }
 
-    /// <summary>表头条带的总宽度（末表头右缘 + 右侧内边距）。</summary>
-    private double GetStripExtent()
+    /// <summary>
+    /// 表头条带的总期望宽度（无约束测量），并把面板显式撑宽到该值。
+    /// Orientation=Neither 的 ScrollView 会以视口宽约束测量内容，StackLayout
+    /// 又把"剩余宽度"传给末尾子元素——条带比视口宽时，末表头被截短、面板本地
+    /// 宽度被裁到视口宽，Android 默认 clipChildren 会裁掉面板边界外的部分，
+    /// TranslationX 平移的是面板自身，永远无法露出边界外的内容。
+    /// </summary>
+    private double EnsureHeaderStripWidth(double viewportWidth)
     {
-        if (_headersPanel.Children.Count == 0) return 0;
-        double right = 0;
-        if (_headersPanel.Children[^1] is VisualElement v)
-            right = v.X + v.Width;
-        return right + _headersPanel.Padding.Right;
+        if (_headersPanel == null || _headersPanel.Children.Count == 0 || viewportWidth <= 0)
+            return 0;
+
+        if (_headerExtentDirty)
+        {
+            double extent = _headersPanel.Measure(double.PositiveInfinity, double.PositiveInfinity).Width;
+            if (extent > 0 && Math.Abs(_headersPanel.WidthRequest - extent) > 1)
+                _headersPanel.WidthRequest = extent;
+            _headerExtentDirty = false;
+        }
+
+        return _headersPanel.WidthRequest;
     }
 
     private void OnSnapTimerTick(object sender, EventArgs e)
@@ -418,6 +434,7 @@ public partial class PivotView : ContentView
                     label.TextColor = pivot.HeaderForeground;
                 }
             }
+            pivot._headerExtentDirty = true;
         }
     }
 
@@ -427,6 +444,7 @@ public partial class PivotView : ContentView
         {
             pivot._headersPanel.Spacing = pivot.HeaderSpacing;
             pivot._headersPanel.Padding = pivot.HeaderMargin;
+            pivot._headerExtentDirty = true;
             pivot.UpdateHeaderStrip(pivot._scrollView?.ScrollX ?? 0);
         }
     }
