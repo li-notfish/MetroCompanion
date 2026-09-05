@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MetroCompanionDemo.PivotDemoPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion"
+    BackgroundColor="#000000">
+
+    <Grid RowDefinitions="Auto, *">
+        <Button
+            x:Name="BackBtn"
+            Margin="12,8,0,0"
+            Padding="12,4"
+            BackgroundColor="Transparent"
+            BorderColor="Transparent"
+            Clicked="OnBackClicked"
+            FontSize="16"
+            HorizontalOptions="Start"
+            Text="‹ 返回"
+            TextColor="White" />
+
+        <mcm:PivotView x:Name="Pivot" Grid.Row="1">
+            <mcm:PivotItem Header="概览">
+                <StackLayout Padding="24,24,24,0" Spacing="12">
+                    <Label
+                        x:Name="OverviewLabel"
+                        FontSize="28"
+                        TextColor="White" />
+                    <Label
+                        FontSize="16"
+                        Text="这是 WP8.1 风格的 Pivot 页。左右滑动、滚动鼠标滚轮或点击顶部表头切换页。"
+                        TextColor="#B3FFFFFF" />
+                </StackLayout>
+            </mcm:PivotItem>
+            <mcm:PivotItem Header="内容">
+                <CollectionView x:Name="WordsList">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Label
+                                Padding="24,6,24,6"
+                                Text="{Binding .}"
+                                TextColor="White" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </mcm:PivotItem>
+            <mcm:PivotItem Header="相关">
+                <StackLayout Padding="24,24,24,0" Spacing="8">
+                    <Label
+                        FontSize="24"
+                        Text="相关内容"
+                        TextColor="White" />
+                    <Label
+                        FontSize="16"
+                        Text="第三页的内容区域，用来演示表头点击跳转。"
+                        TextColor="#B3FFFFFF" />
+                </StackLayout>
+            </mcm:PivotItem>
+        </mcm:PivotView>
+    </Grid>
+</ContentPage>

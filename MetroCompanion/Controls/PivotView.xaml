@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="MetroCompanion.Controls.PivotView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:behaviors="clr-namespace:MetroCompanion.Behaviores">
+    <ContentView.ControlTemplate>
+        <ControlTemplate>
+            <Grid Background="Transparent"
+                  RowDefinitions="Auto, Auto, *">
+                <!-- WP8.1 Pivot 大标题 -->
+                <Label
+                    Grid.Row="0"
+                    x:Name="PART_Title"
+                    Margin="24,12,24,4"
+                    FontSize="{TemplateBinding TitleFontSize}"
+                    LineBreakMode="TailTruncation"
+                    MaxLines="1"
+                    Text="{TemplateBinding Title}"
+                    TextColor="{TemplateBinding TitleForeground}" />
+
+                <!-- 表头裁剪容器：只负责裁剪，表头的 TranslationX 由代码按滚动进度驱动 -->
+                <ScrollView
+                    Grid.Row="1"
+                    x:Name="PART_HeadersClip"
+                    Orientation="Neither">
+                    <HorizontalStackLayout x:Name="PART_HeadersPanel" />
+                </ScrollView>
+
+                <!-- Pivot 内容区：整页横滑，始终吸附到某一页 -->
+                <ScrollView
+                    Grid.Row="2"
+                    x:Name="PART_ScrollView"
+                    HorizontalScrollBarVisibility="Never"
+                    Orientation="Horizontal">
+                    <ScrollView.Behaviors>
+                        <OnPlatform x:TypeArguments="Behavior">
+                            <On Platform="WinUI">
+                                <behaviors:HubHorizontalScrollBehavior StepByPage="True" />
+                            </On>
+                        </OnPlatform>
+                    </ScrollView.Behaviors>
+                    <HorizontalStackLayout
+                        x:Name="PART_ItemsContainer"
+                        HorizontalOptions="Start"
+                        Spacing="0"
+                        VerticalOptions="Fill" />
+                </ScrollView>
+            </Grid>
+        </ControlTemplate>
+    </ContentView.ControlTemplate>
+</ContentView>

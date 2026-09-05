@@ -14,6 +14,8 @@ namespace MetroCompanion.Behaviores
         // 定义一个字段来持有引用（可选，但方便在事件中使用）
         private Microsoft.Maui.Controls.ScrollView _mauiScrollView;
 
+        // StepByPage 定义在根目录的分部类存根中，两个 TFM 共用
+
         protected override void OnAttachedTo(Microsoft.Maui.Controls.ScrollView bindable, WUC.ScrollViewer nativeView)
         {
             base.OnAttachedTo(bindable, nativeView);
@@ -50,12 +52,28 @@ namespace MetroCompanion.Behaviores
             if (!props.IsHorizontalMouseWheel)
             {
                 double delta = props.MouseWheelDelta;
+                double maxScroll = _mauiScrollView.ContentSize.Width - _mauiScrollView.Width;
+                double targetX;
+
+                if (StepByPage)
+                {
+                    // Pivot 模式：基于当前所在页整页步进（滚轮向上 = 上一页），平滑滚动由 Pivot 的吸附逻辑收尾
+                    double pageWidth = _mauiScrollView.Width;
+                    if (pageWidth <= 0) return;
+
+                    int currentIndex = (int)Math.Round(_mauiScrollView.ScrollX / pageWidth);
+                    int direction = delta > 0 ? -1 : 1;
+                    targetX = Math.Clamp((currentIndex + direction) * pageWidth, 0, maxScroll);
+
+                    _mauiScrollView.ScrollToAsync(targetX, 0, true);
+                    e.Handled = true;
+                    return;
+                }
 
                 // 计算位移
-                double targetX = _mauiScrollView.ScrollX - delta;
+                targetX = _mauiScrollView.ScrollX - delta;
 
                 // 边界检查
-                double maxScroll = _mauiScrollView.ContentSize.Width - _mauiScrollView.Width;
                 targetX = Math.Clamp(targetX, 0, maxScroll);
 
                 // 驱动 MAUI ScrollView 滚动

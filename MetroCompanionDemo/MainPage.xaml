@@ -29,7 +29,11 @@
                 <CollectionView ItemsSource="{Binding Tg}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Label Text="{Binding .}" />
+                            <Label Text="{Binding .}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnItemTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
@@ -38,7 +42,11 @@
                 <CollectionView ItemsSource="{Binding Tg}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Label Text="{Binding .}" />
+                            <Label Text="{Binding .}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnItemTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
