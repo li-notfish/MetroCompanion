@@ -153,6 +153,10 @@ public partial class PivotView : ContentView
                 FontSize = HeaderFontSize,
                 FontFamily = Styles.MetroTokens.FontFamily,
                 TextColor = HeaderForeground,
+                // StackLayout 会用"剩余宽度"约束测量子元素：末表头在手机上
+                // 只剩一个字的剩余空间，默认 WordWrap 会折行后被条带行高裁掉，
+                // 强制单行保证测量宽度即完整文字宽度
+                LineBreakMode = LineBreakMode.NoWrap,
             };
         }
 
