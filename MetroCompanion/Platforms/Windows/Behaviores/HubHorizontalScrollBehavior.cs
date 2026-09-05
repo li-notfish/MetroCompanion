@@ -38,6 +38,10 @@ namespace MetroCompanion.Behaviores
             {
                 nativeView.IsTabStop = true;
                 nativeView.KeyDown += OnKeyDown;
+
+                // 惯性刚开始即按预测落点整页吸附（WP8.1 每次手势直接落到整页），
+                // 避免"惯性停稳→等 300ms→再补一段矫正动画"的顿感
+                nativeView.ViewChanging += OnNativeViewChanging;
             }
 
             // 3. 顺手开启 Windows 的左键拖拽支持
@@ -54,9 +58,32 @@ namespace MetroCompanion.Behaviores
             nativeView.RemoveHandler(UIElement.PointerWheelChangedEvent,
                 new PointerEventHandler(OnPointerWheelChanged));
             nativeView.KeyDown -= OnKeyDown;
+            nativeView.ViewChanging -= OnNativeViewChanging;
 
             _mauiScrollView = null;
             _nativeScroll = null;
+        }
+
+        private void OnNativeViewChanging(object sender, WUC.ScrollViewerViewChangingEventArgs e)
+        {
+            // 只处理惯性阶段：拖拽中 NextView == FinalView，惯性中 FinalView 是
+            // WinUI 的预测落点。落点不在整页上时立即用短促动画接管（设置偏移
+            // 会取消惯性），直接滑到最近的整页
+            var nativeScroll = sender as WinScrollViewer;
+            if (nativeScroll == null) return;
+
+            double page = nativeScroll.ViewportWidth;
+            if (page <= 0) return;
+
+            double next = e.NextView.HorizontalOffset;
+            double final = e.FinalView.HorizontalOffset;
+            if (Math.Abs(final - next) <= 0.5) return;
+
+            double maxScroll = nativeScroll.ExtentWidth - page;
+            double targetX = Math.Clamp(Math.Round(final / page) * page, 0, maxScroll);
+
+            if (Math.Abs(targetX - final) > 0.5)
+                AnimatePageTo(targetX);
         }
 
         private void OnKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)

@@ -251,8 +251,20 @@ public partial class PivotView : ContentView
         double width = _headersPanel.Children[index] is VisualElement v ? v.Width : 0;
 
         double shift = Math.Max(0, pos + width - marginLeft - viewportWidth);
-        // 表头比视口还宽时左对齐
-        return Math.Min(shift, Math.Max(0, pos - marginLeft));
+        // 条带右端最多对齐视口右端：WP8.1 在最后一页时末表头完整可见，
+        // 前面的表头被推出视口左缘（条带比视口宽时上一页的表头自然让位）
+        double maxShift = Math.Max(0, GetStripExtent() - viewportWidth);
+        return Math.Min(shift, maxShift);
+    }
+
+    /// <summary>表头条带的总宽度（末表头右缘 + 右侧内边距）。</summary>
+    private double GetStripExtent()
+    {
+        if (_headersPanel.Children.Count == 0) return 0;
+        double right = 0;
+        if (_headersPanel.Children[^1] is VisualElement v)
+            right = v.X + v.Width;
+        return right + _headersPanel.Padding.Right;
     }
 
     private void OnSnapTimerTick(object sender, EventArgs e)
