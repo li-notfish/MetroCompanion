@@ -29,7 +29,7 @@
                     <Label
                         FontSize="16"
                         Text="这是 WP8.1 风格的 Pivot 页。左右滑动、滚动鼠标滚轮或点击顶部表头切换页。"
-                        TextColor="#B3FFFFFF" />
+                        TextColor="{DynamicResource MetroSubtleForegroundColor}" />
                 </StackLayout>
             </mcm:PivotItem>
             <mcm:PivotItem Header="内容">
@@ -53,7 +53,7 @@
                     <Label
                         FontSize="16"
                         Text="第三页的内容区域，用来演示表头点击跳转。"
-                        TextColor="#B3FFFFFF" />
+                        TextColor="{DynamicResource MetroSubtleForegroundColor}" />
                 </StackLayout>
             </mcm:PivotItem>
         </mcm:PivotView>

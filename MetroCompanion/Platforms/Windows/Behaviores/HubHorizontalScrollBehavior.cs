@@ -16,6 +16,9 @@ namespace MetroCompanion.Behaviores
 
         // StepByPage 定义在根目录的分部类存根中，两个 TFM 共用
 
+        // 高分辨率滚轮一格会连发多个事件，去重保证一格只翻一页（WinRT 8.1 Pivot 行为）
+        private DateTime _lastWheelPageSwitch = DateTime.MinValue;
+
         protected override void OnAttachedTo(Microsoft.Maui.Controls.ScrollView bindable, WUC.ScrollViewer nativeView)
         {
             base.OnAttachedTo(bindable, nativeView);
@@ -25,7 +28,14 @@ namespace MetroCompanion.Behaviores
             nativeView.AddHandler(UIElement.PointerWheelChangedEvent,
                 new PointerEventHandler(OnPointerWheelChanged), true);
 
-            // 2. 顺手开启 Windows 的左键拖拽支持
+            // 2. Pivot 模式下支持方向键翻页（WinRT 8.1 桌面 Pivot 行为）
+            if (StepByPage)
+            {
+                nativeView.IsTabStop = true;
+                nativeView.KeyDown += OnKeyDown;
+            }
+
+            // 3. 顺手开启 Windows 的左键拖拽支持
             nativeView.HorizontalScrollMode = WUC.ScrollMode.Enabled;
         }
 
@@ -35,8 +45,28 @@ namespace MetroCompanion.Behaviores
 
             nativeView.RemoveHandler(UIElement.PointerWheelChangedEvent,
                 new PointerEventHandler(OnPointerWheelChanged));
+            nativeView.KeyDown -= OnKeyDown;
 
             _mauiScrollView = null;
+        }
+
+        private void OnKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (_mauiScrollView == null || _mauiScrollView.Width <= 0) return;
+
+            double maxScroll = _mauiScrollView.ContentSize.Width - _mauiScrollView.Width;
+            int currentIndex = (int)Math.Round(_mauiScrollView.ScrollX / _mauiScrollView.Width);
+            int direction = e.Key switch
+            {
+                Windows.System.VirtualKey.Left => -1,
+                Windows.System.VirtualKey.Right => 1,
+                _ => 0
+            };
+            if (direction == 0) return;
+
+            double targetX = Math.Clamp((currentIndex + direction) * _mauiScrollView.Width, 0, maxScroll);
+            _mauiScrollView.ScrollToAsync(targetX, 0, true);
+            e.Handled = true;
         }
 
         private void OnPointerWheelChanged(object sender, PointerRoutedEventArgs e)
@@ -57,10 +87,18 @@ namespace MetroCompanion.Behaviores
 
                 if (StepByPage)
                 {
-                    // Pivot 模式：基于当前所在页整页步进（滚轮向上 = 上一页），平滑滚动由 Pivot 的吸附逻辑收尾
+                    // Pivot 模式：基于当前所在页整页步进（滚轮向上 = 上一页）
+                    if (DateTime.Now - _lastWheelPageSwitch < TimeSpan.FromMilliseconds(300))
+                    {
+                        // 高分辨率滚一格连发的事件吞掉，但保持 Handled 防止垂直滚动
+                        e.Handled = true;
+                        return;
+                    }
+
                     double pageWidth = _mauiScrollView.Width;
                     if (pageWidth <= 0) return;
 
+                    _lastWheelPageSwitch = DateTime.Now;
                     int currentIndex = (int)Math.Round(_mauiScrollView.ScrollX / pageWidth);
                     int direction = delta > 0 ? -1 : 1;
                     targetX = Math.Clamp((currentIndex + direction) * pageWidth, 0, maxScroll);

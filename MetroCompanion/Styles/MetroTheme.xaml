@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary
+    x:Class="MetroCompanion.Styles.MetroTheme"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!--  Metro 设计语言令牌（Windows 8 / 8.1）。与 MetroTokens.cs 保持同步，App 可合并后覆盖。  -->
+
+    <Color x:Key="MetroAccentColor">#0078D7</Color>
+    <Color x:Key="MetroForegroundColor">#FFFFFF</Color>
+    <Color x:Key="MetroSubtleForegroundColor">#B3FFFFFF</Color>
+
+    <x:String x:Key="MetroFontFamily">Segoe UI</x:String>
+    <x:String x:Key="MetroSemiboldFontFamily">Segoe UI Semibold</x:String>
+    <x:String x:Key="MetroLightFontFamily">Segoe UI Light</x:String>
+
+    <!--  桌面默认值；手机端控件运行时取 MetroTokens 的自适应值  -->
+    <x:Double x:Key="PivotHeaderItemFontSize">24</x:Double>
+    <x:Double x:Key="PivotTitleFontSize">46</x:Double>
+    <x:Double x:Key="HubSectionHeaderFontSize">26.667</x:Double>
+    <x:Double x:Key="HubHeaderFontSize">46</x:Double>
+    <x:Double x:Key="PanoramaTitleFontSize">165</x:Double>
+    <x:Double x:Key="UnselectedHeaderOpacity">0.5</x:Double>
+    <x:Double x:Key="MetroPageMargin">100</x:Double>
+</ResourceDictionary>

@@ -27,15 +27,14 @@ public partial class PivotView : ContentView
     private double _pageWidth;
 
     public static readonly BindableProperty TitleProperty = BindableProperty.Create(nameof(Title), typeof(string), typeof(PivotView), string.Empty, propertyChanged: OnTitleChanged);
-    public static readonly BindableProperty TitleFontSizeProperty = BindableProperty.Create(nameof(TitleFontSize), typeof(double), typeof(PivotView), 64.0);
-    public static readonly BindableProperty TitleForegroundProperty = BindableProperty.Create(nameof(TitleForeground), typeof(Color), typeof(PivotView), Colors.White);
+    public static readonly BindableProperty TitleFontSizeProperty = BindableProperty.Create(nameof(TitleFontSize), typeof(double), typeof(PivotView), Styles.MetroTokens.PivotTitleFontSize);
+    public static readonly BindableProperty TitleForegroundProperty = BindableProperty.Create(nameof(TitleForeground), typeof(Color), typeof(PivotView), Styles.MetroTokens.ForegroundColor);
 
-    public static readonly BindableProperty HeaderFontSizeProperty = BindableProperty.Create(nameof(HeaderFontSize), typeof(double), typeof(PivotView), 42.0, propertyChanged: OnHeaderAppearanceChanged);
-    public static readonly BindableProperty HeaderForegroundProperty = BindableProperty.Create(nameof(HeaderForeground), typeof(Color), typeof(PivotView), Colors.White, propertyChanged: OnHeaderAppearanceChanged);
-    public static readonly BindableProperty UnselectedHeaderOpacityProperty = BindableProperty.Create(nameof(UnselectedHeaderOpacity), typeof(double), typeof(PivotView), 0.6);
-    public static readonly BindableProperty HeaderMarginProperty = BindableProperty.Create(nameof(HeaderMargin), typeof(Thickness), typeof(PivotView), new Thickness(24, 0, 0, 0), propertyChanged: OnHeaderLayoutChanged);
+    public static readonly BindableProperty HeaderFontSizeProperty = BindableProperty.Create(nameof(HeaderFontSize), typeof(double), typeof(PivotView), Styles.MetroTokens.PivotHeaderItemFontSize, propertyChanged: OnHeaderAppearanceChanged);
+    public static readonly BindableProperty HeaderForegroundProperty = BindableProperty.Create(nameof(HeaderForeground), typeof(Color), typeof(PivotView), Styles.MetroTokens.ForegroundColor, propertyChanged: OnHeaderAppearanceChanged);
+    public static readonly BindableProperty UnselectedHeaderOpacityProperty = BindableProperty.Create(nameof(UnselectedHeaderOpacity), typeof(double), typeof(PivotView), Styles.MetroTokens.UnselectedHeaderOpacity);
+    public static readonly BindableProperty HeaderMarginProperty = BindableProperty.Create(nameof(HeaderMargin), typeof(Thickness), typeof(PivotView), new Thickness(Styles.MetroTokens.PageMargin, 0, 0, 0), propertyChanged: OnHeaderLayoutChanged);
     public static readonly BindableProperty HeaderSpacingProperty = BindableProperty.Create(nameof(HeaderSpacing), typeof(double), typeof(PivotView), 24.0, propertyChanged: OnHeaderLayoutChanged);
-    public static readonly BindableProperty AccentColorProperty = BindableProperty.Create(nameof(AccentColor), typeof(Color), typeof(PivotView), Color.FromArgb("#0078D4"));
 
     public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(nameof(SelectedIndex), typeof(int), typeof(PivotView), 0, BindingMode.TwoWay, coerceValue: CoerceIndex, propertyChanged: OnSelectedIndexChanged);
     public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(PivotView), null, BindingMode.TwoWay, propertyChanged: OnSelectedItemChanged);
@@ -49,7 +48,6 @@ public partial class PivotView : ContentView
     public double UnselectedHeaderOpacity { get => (double)GetValue(UnselectedHeaderOpacityProperty); set => SetValue(UnselectedHeaderOpacityProperty, value); }
     public Thickness HeaderMargin { get => (Thickness)GetValue(HeaderMarginProperty); set => SetValue(HeaderMarginProperty, value); }
     public double HeaderSpacing { get => (double)GetValue(HeaderSpacingProperty); set => SetValue(HeaderSpacingProperty, value); }
-    public Color AccentColor { get => (Color)GetValue(AccentColorProperty); set => SetValue(AccentColorProperty, value); }
 
     public int SelectedIndex { get => (int)GetValue(SelectedIndexProperty); set => SetValue(SelectedIndexProperty, value); }
     public object SelectedItem { get => GetValue(SelectedItemProperty); set => SetValue(SelectedItemProperty, value); }
@@ -89,7 +87,11 @@ public partial class PivotView : ContentView
         _itemsContainer = GetTemplateChild("PART_ItemsContainer") as HorizontalStackLayout;
 
         if (_titleLabel != null)
+        {
+            // WinRT 8.1 大标题使用 Light 字重
+            _titleLabel.FontFamily = Styles.MetroTokens.LightFontFamily;
             _titleLabel.IsVisible = !string.IsNullOrWhiteSpace(Title);
+        }
 
         if (_scrollView != null)
             _scrollView.Scrolled += OnScrolled;
@@ -149,28 +151,22 @@ public partial class PivotView : ContentView
             {
                 Text = item.Header?.ToString() ?? string.Empty,
                 FontSize = HeaderFontSize,
+                FontFamily = Styles.MetroTokens.FontFamily,
                 TextColor = HeaderForeground,
             };
         }
 
         var tap = new TapGestureRecognizer();
-        tap.Tapped += (s, e) => OnHeaderTapped(item, headerView);
+        tap.Tapped += (s, e) => OnHeaderTapped(item);
         headerView.GestureRecognizers.Add(tap);
 
         return headerView;
     }
 
-    private void OnHeaderTapped(PivotItem item, View headerView)
+    private void OnHeaderTapped(PivotItem item)
     {
         int index = Items.IndexOf(item);
         if (index < 0) return;
-
-        // WP 风格：点击瞬间表头闪一下强调色（仅默认 Label 表头）
-        if (headerView is Label label)
-        {
-            label.TextColor = AccentColor;
-            Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(150), () => label.TextColor = HeaderForeground);
-        }
 
         NavigateTo(index);
     }
@@ -399,6 +395,7 @@ public partial class PivotView : ContentView
                 if (child is Label label)
                 {
                     label.FontSize = pivot.HeaderFontSize;
+                    label.FontFamily = Styles.MetroTokens.FontFamily;
                     label.TextColor = pivot.HeaderForeground;
                 }
             }
