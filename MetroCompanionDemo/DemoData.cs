@@ -8,10 +8,6 @@ namespace MetroCompanionDemo
     /// </summary>
     public static class DemoData
     {
-        public const string Text = "FOR the most wild, yet most homely narrative which I am about to pen, I neither expect nor solicit belief. Mad indeed would I be to expect it, in a case where my very senses reject their own evidence. Yet, mad am I not -- and very surely do I not dream. But to-morrow I die, and to-day I would unburthen my soul. My immediate purpose is to place before the world, plainly, succinctly, and without comment, a series of mere household events. In their consequences, these events have terrified -- have tortured -- have destroyed me. Yet I will not attempt to expound them. To me, they have presented little but Horror -- to many they will seem less terrible than barroques. Hereafter, perhaps, some intellect may be found which will reduce my phantasm to the common-place -- some intellect more calm, more logical, and far less excitable than my own, which will perceive, in the circumstances I detail with awe, nothing more than an ordinary succession of very natural causes and effects.";
-
-        public static string[] Words => Text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
         // Metro 磁贴底色：强调蓝与半透明黑（叠在壁纸上）
         private const string Accent = "#0078D7";
         private const string TileDark = "#B3000000";
@@ -49,5 +45,18 @@ namespace MetroCompanionDemo
             new("主题", "深色 · 强调蓝", "", TileDark),
             new("关于", "MetroCompanion 1.0", "", TileDark),
         };
+
+        /// <summary>按标题在所有分组中查找条目。</summary>
+        public static DemoItem? Find(string title) =>
+            Trips.Concat(Diary).Concat(Feed).Concat(Mine).FirstOrDefault(i => i.Title == title);
+
+        /// <summary>返回条目所在的分组（找不到时回退到"我的"）。</summary>
+        public static IReadOnlyList<DemoItem> SectionOf(string title)
+        {
+            if (Trips.Any(i => i.Title == title)) return Trips;
+            if (Diary.Any(i => i.Title == title)) return Diary;
+            if (Feed.Any(i => i.Title == title)) return Feed;
+            return Mine;
+        }
     }
 }

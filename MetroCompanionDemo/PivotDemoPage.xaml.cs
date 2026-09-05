@@ -6,19 +6,27 @@ namespace MetroCompanionDemo
         public PivotDemoPage()
         {
             InitializeComponent();
-
-            WordsList.ItemsSource = DemoData.Words;
         }
 
         /// <summary>
-        /// 从 Hub 列表点击传入的词条，作为 Pivot 大标题与概览内容。
+        /// 从 Hub 点击传入的条目标题：作为 Pivot 大标题，并加载该条目
+        /// 所在分组的全部条目作为"内容"页列表。
         /// </summary>
         public string ItemText
         {
             set
             {
                 Pivot.Title = value;
+
+                var item = DemoData.Find(value);
                 OverviewLabel.Text = value;
+                OverviewSubLabel.Text = item == null
+                    ? "这是 WP8.1 风格的 Pivot 页。"
+                    : string.IsNullOrEmpty(item.Detail)
+                        ? item.Subtitle
+                        : $"{item.Subtitle} —— {item.Detail}";
+
+                ContentList.ItemsSource = DemoData.SectionOf(value);
             }
         }
 

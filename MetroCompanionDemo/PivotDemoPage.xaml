@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="MetroCompanionDemo.PivotDemoPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -27,19 +27,37 @@
                         FontSize="28"
                         TextColor="White" />
                     <Label
+                        x:Name="OverviewSubLabel"
+                        FontSize="15"
+                        LineBreakMode="WordWrap"
+                        TextColor="{DynamicResource MetroSubtleForegroundColor}" />
+                    <Label
                         FontSize="16"
                         Text="这是 WP8.1 风格的 Pivot 页。左右滑动、滚动鼠标滚轮或点击顶部表头切换页。"
                         TextColor="{DynamicResource MetroSubtleForegroundColor}" />
                 </StackLayout>
             </mcm:PivotItem>
             <mcm:PivotItem Header="内容">
-                <CollectionView x:Name="WordsList">
+                <CollectionView
+                    x:Name="ContentList"
+                    Margin="24,24,24,0"
+                    ItemsSource="{Binding .}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Label
-                                Padding="24,6,24,6"
-                                Text="{Binding .}"
-                                TextColor="White" />
+                            <Grid Margin="0,8" ColumnDefinitions="Auto,*">
+                                <BoxView
+                                    Color="{DynamicResource MetroAccentColor}"
+                                    HeightRequest="34"
+                                    VerticalOptions="Center"
+                                    WidthRequest="4" />
+                                <StackLayout Grid.Column="1" Padding="12,0,0,0">
+                                    <Label FontSize="19" Text="{Binding Title}" TextColor="White" />
+                                    <Label
+                                        FontSize="13"
+                                        Text="{Binding Subtitle}"
+                                        TextColor="{DynamicResource MetroSubtleForegroundColor}" />
+                                </StackLayout>
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
