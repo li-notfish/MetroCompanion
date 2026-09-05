@@ -20,12 +20,15 @@ public partial class HubView : ContentView
     public static readonly BindableProperty HeaderProperty = BindableProperty.Create(nameof(Header), typeof(View), typeof(HubView));
     public static readonly BindableProperty IsParallaxEnabledProperty = BindableProperty.Create(nameof(IsParallaxEnabled), typeof(bool), typeof(HubView), true);
     public static readonly BindableProperty IsPanoramaModeProperty = BindableProperty.Create(nameof(IsPanoramaMode), typeof(bool), typeof(HubView), false, propertyChanged: OnIsPanoramaModeChanged);
+    public static readonly BindableProperty PanoramaTitleProperty = BindableProperty.Create(nameof(PanoramaTitle), typeof(string), typeof(HubView), propertyChanged: OnPanoramaTitleChanged);
     public static readonly BindableProperty SnapThresholdProperty = BindableProperty.Create(nameof(SnapThreshold), typeof(double), typeof(HubView), 0.2);
 
     public ImageSource BackgroundSource { get => (ImageSource)GetValue(BackgroundSourceProperty); set => SetValue(BackgroundSourceProperty, value); }
     public View Header { get => (View)GetValue(HeaderProperty); set => SetValue(HeaderProperty, value); }
     public bool IsParallaxEnabled { get => (bool)GetValue(IsParallaxEnabledProperty); set => SetValue(IsParallaxEnabledProperty, value); }
     public bool IsPanoramaMode { get => (bool)GetValue(IsPanoramaModeProperty); set => SetValue(IsPanoramaModeProperty, value); }
+    /// <summary>Panorama 模式下显示在第一面板的控件级大标题。</summary>
+    public string PanoramaTitle { get => (string)GetValue(PanoramaTitleProperty); set => SetValue(PanoramaTitleProperty, value); }
     public double SnapThreshold { get => (double)GetValue(SnapThresholdProperty); set => SetValue(SnapThresholdProperty, value); }
 
     public ObservableCollection<HubSection> Sections { get; } = new();
@@ -67,15 +70,24 @@ public partial class HubView : ContentView
     private static void OnIsPanoramaModeChanged(BindableObject bindable, object oldValue, object newValue)
     {
         if (bindable is HubView hub)
+            hub.ApplySectionStyles();
+    }
+
+    private static void OnPanoramaTitleChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        if (bindable is HubView hub && hub.IsPanoramaMode)
+            hub.ApplySectionStyles();
+    }
+
+    private void ApplySectionStyles()
+    {
+        // WP8 Panorama：仅第一面板显示控件级大标题，其余面板为小表头
+        for (int i = 0; i < Sections.Count; i++)
         {
-            bool isPanorama = (bool)newValue;
-            foreach (var section in hub.Sections)
-            {
-                if (isPanorama)
-                    section.ApplyPanoramaStyle();
-                else
-                    section.ApplyHubStyle();
-            }
+            if (IsPanoramaMode)
+                Sections[i].ApplyPanoramaStyle(isFirst: i == 0, PanoramaTitle);
+            else
+                Sections[i].ApplyHubStyle();
         }
     }
 
@@ -85,14 +97,9 @@ public partial class HubView : ContentView
     {
         if (_sectionsContainer == null) return;
         _sectionsContainer.Children.Clear();
+        ApplySectionStyles();
         foreach (var s in Sections)
-        {
-            if (IsPanoramaMode)
-                s.ApplyPanoramaStyle();
-            else
-                s.ApplyHubStyle();
             _sectionsContainer.Children.Add(s);
-        }
 
         Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(200), () => _ = PlayEntranceAnimation());
     }
@@ -106,7 +113,9 @@ public partial class HubView : ContentView
 
         foreach (var child in _sectionsContainer.Children)
         {
-            if (child is HubSection s) s.WidthRequest = targetWidth;
+            // 真机 PanoramaItem 宽度可变：Panorama 模式下尊重调用方显式设置的宽度
+            if (child is HubSection s && !(IsPanoramaMode && s.WidthRequest > 0))
+                s.WidthRequest = targetWidth;
         }
 
         _sectionsContainer.InvalidateMeasure();
@@ -121,6 +130,13 @@ public partial class HubView : ContentView
         {
             double parallaxOffset = -e.ScrollX * 0.1;
             _parallaxBg.TranslationX = parallaxOffset;
+        }
+
+        // WP8 Panorama 首面板大标题：滚过约半个视口后完全淡出，回滚时恢复
+        if (IsPanoramaMode && Sections.Count > 0 && Width > 0)
+        {
+            double fade = Math.Clamp(1 - e.ScrollX / (Width * 0.5), 0, 1);
+            Sections[0].SetPanoramaTitleOpacity(0.65 * fade);
         }
 
         if (_isAnimating || DateTime.Now - _lastSnapTime < TimeSpan.FromMilliseconds(200))

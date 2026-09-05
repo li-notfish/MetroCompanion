@@ -33,8 +33,10 @@ public static class MetroTokens
     public const double HubSectionHeaderFontSize = 26.667;
     /// <summary>Hub 大标题（HubHeaderThemeFontSize）。</summary>
     public const double HubHeaderFontSize = 46;
-    /// <summary>Panorama 大标题（WP8 真机约 165px Light）。</summary>
-    public const double PanoramaTitleFontSize = 165;
+    /// <summary>Panorama 大标题：手机 165px（WP8 真机规格）；桌面视口宽得多，收敛到 100px。</summary>
+    public static double PanoramaTitleFontSize => IsPhone ? 165 : 100;
+    /// <summary>PanoramaItem 小表头（WP8 真机约 45px Semilight）。</summary>
+    public const double PanoramaItemHeaderFontSize = 45;
     /// <summary>未选中 Pivot 表头透明度（WinRT 视觉状态值）。</summary>
     public const double UnselectedHeaderOpacity = 0.5;
 

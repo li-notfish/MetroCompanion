@@ -24,6 +24,7 @@
         <mcm:HubView
             x:Name="Hub"
             Grid.Row="1"
+            PanoramaTitle="旅程"
             BackgroundSource="bg.jpg">
             <mcm:HubSection Title="旅程">
                 <CollectionView ItemsSource="{Binding Tg}">
@@ -51,7 +52,7 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </mcm:HubSection>
-            <mcm:HubSection Title="动态" />
+            <mcm:HubSection Title="动态" WidthRequest="320" />
             <mcm:HubSection Title="我的" />
         </mcm:HubView>
     </Grid>
