@@ -241,7 +241,10 @@ public partial class PivotView : ContentView
     private double GetHeaderPosition(int index)
         => _headersPanel.Children[index] is VisualElement v ? v.X : 0;
 
-    /// <summary>让表头 <paramref name="index"/> 完整落在视口内所需的最小条带左移量。</summary>
+    /// <summary>
+    /// 让表头 <paramref name="index"/> 完整落在视口内所需的最小条带左移量。
+    /// 目标：表头右缘对齐视口右栅格（右缘 = 视口宽 - 左边距）。
+    /// </summary>
     private double GetHeaderShift(int index, double viewportWidth, double marginLeft)
     {
         if (viewportWidth <= 0 || index >= _headersPanel.Children.Count)
@@ -250,10 +253,10 @@ public partial class PivotView : ContentView
         double pos = GetHeaderPosition(index);
         double width = _headersPanel.Children[index] is VisualElement v ? v.Width : 0;
 
-        double shift = Math.Max(0, pos + width - marginLeft - viewportWidth);
-        // 条带右端最多对齐视口右端：WP8.1 在最后一页时末表头完整可见，
-        // 前面的表头被推出视口左缘（条带比视口宽时上一页的表头自然让位）
-        double maxShift = Math.Max(0, GetStripExtent() - viewportWidth);
+        double shift = Math.Max(0, pos + width + marginLeft - viewportWidth);
+        // 条带右端（含右边距）最多收到视口右栅格：WP8.1 在最后一页时末表头
+        // 完整可见，前面的表头被推出视口左缘（条带比视口宽时自然让位）
+        double maxShift = Math.Max(0, GetStripExtent() + marginLeft - viewportWidth);
         return Math.Min(shift, maxShift);
     }
 
