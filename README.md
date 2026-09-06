@@ -2,10 +2,50 @@
 
 **Windows Phone 8 / Windows 8 时代 Metro 设计语言的 .NET MAUI 控件库。**
 
-还原 Windows Phone 8/8.1 与 Windows 8/8.1（WinRT）的控件规格与交互细节——不是"差不多"的模仿：字号、字重、间距、位移公式均对照 SDK `generic.xaml` 与真机规格逐项校准。
+还原 Windows Phone 8/8.1 与 Windows 8/8.1（WinRT）的控件规格与交互细节——不是"差不多"的模仿：字号、字重、字距、间距、动画时长均对照 SDK `generic.xaml` / `ThemeResources.xaml` 与真机规格逐项校准。
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/License-MIT-green)](#license)
+
+## 控件总览
+
+| 控件 | 对标原件 | 一句话 |
+|---|---|---|
+| `HubView` | WinRT Hub + WP8 Panorama | 横滑多节内容控件，双模式切换 |
+| `PivotView` | WP8.1 Pivot | 整页横滑、表头 scroll-into-view、滚轮/键盘翻页 |
+| `ApplicationBar` | WP8 ApplicationBar | 72px 应用栏："…"展开菜单、右键/长按呼出 |
+| `SemanticZoom` | WinRT SemanticZoom | 捏合 / Ctrl+滚轮 / 缩放按钮切换两个视图 |
+
+## 仓库结构
+
+```
+MetroCompanion/
+├── MetroCompanion/            # 控件库（NuGet 包 MetroCompanion）
+│   ├── Controls/              #   HubView / PivotView / ApplicationBar / SemanticZoom
+│   ├── Behaviores/            #   平台行为（partial 拆分：共享 stub + Platforms/Windows 实现）
+│   ├── Platforms/Windows/     #   WinUI 专属：滚轮翻页、Ctrl+滚轮缩放、右键呼出
+│   └── Styles/                #   MetroTokens（自适应令牌）+ MetroTheme.xaml（资源字典版）
+└── MetroCompanionDemo/        # 示例应用（Hub/Panorama、Pivot 详情、应用栏、语义缩放）
+```
+
+## 快速开始
+
+```shell
+dotnet add package MetroCompanion
+```
+
+包覆盖 `net10.0` / `net10.0-android` / `net10.0-ios` / `net10.0-maccatalyst` / `net10.0-windows10.0.19041` 五个目标框架。
+
+| 平台 | 说明 |
+|---|---|
+| Windows | Segoe UI 字重（Semilight/Semibold/Light）精确生效；滚轮/键盘/右键行为完整 |
+| Android / iOS / MacCatalyst | 字体回退平台默认；滚动/吸附/捏合行为完整 |
+
+XAML 命名空间：
+
+```xml
+xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion"
+```
 
 ## 控件
 
@@ -20,8 +60,6 @@
 - WP8.1 Optional snap 吸附——靠近节边界才吸附，而非强制整页。
 
 ```xml
-xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion"
-
 <mcm:HubView
     PanoramaTitle="旅程"
     IsPanoramaMode="True"
@@ -107,30 +145,33 @@ xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion"
 
 ### 设计令牌
 
-`MetroCompanion.Styles.MetroTokens` 提供桌面/手机自适应的字号、字重、颜色与栅格令牌（`PageMargin`、`PivotHeaderItemFontSize`、`PanoramaTitleFontSize`、`SemilightFontFamily` 等），附 ResourceDictionary 版本 `MetroTheme.xaml`，App 可整体合并后按需覆盖。数值来源：Windows Phone Kits 8.1 `generic.xaml`（WinRT 手机）、Windows Kits 8.0 `generic.xaml`（桌面 WinRT）、Windows Phone v8.1 `ThemeResources.xaml`（Silverlight）。
+`MetroCompanion.Styles.MetroTokens` 提供桌面/手机自适应的字号、字重、颜色与栅格令牌（`PageMargin`、`PivotHeaderItemFontSize`、`PanoramaTitleFontSize`、`SemilightFontFamily` 等），附 ResourceDictionary 版本 `MetroTheme.xaml`，App 可整体合并后按需覆盖。字距令牌沿用 WinRT 语义（1/1000 em），经 `MetroTokens.ToCharacterSpacing()` 换算为 MAUI 的 pt 单位。
 
-## 快速开始
+## 规格来源
 
-```shell
-dotnet add package MetroCompanion
-```
+所有校准数值的出处（也是复现细节时应该翻的资料）：
 
-包覆盖 `net10.0` / `net10.0-android` / `net10.0-ios` / `net10.0-maccatalyst` / `net10.0-windows10.0.19041` 五个目标框架。
-
-| 平台 | 说明 |
+| 来源 | 用途 |
 |---|---|
-| Windows | Segoe UI 字重（Semilight/Semibold/Light）精确生效；滚轮/键盘行为完整 |
-| Android / iOS / MacCatalyst | 字体回退平台默认；滚动/吸附行为完整 |
+| Windows Phone Kits 8.1 `Include\abi\Xaml\Design\generic.xaml` | WinRT 手机模板：SemanticZoom、CommandBar、Hub/Pivot 手机令牌、AppBar 画刷 |
+| Windows Kits 8.0 `Include\winrt\xaml\design\generic.xaml` + `themeresources.xaml` | 桌面 WinRT 模板：SemanticZoom 缩放按钮（21×21）、桌面字号 |
+| Microsoft SDKs \Windows Phone\v8.1 `Design\ThemeResources.xaml` | Silverlight 令牌：Pivot/Panorama 字号、`PhonePivotUnselectedItemOpacity`、字体表 |
+| Microsoft SDKs \Windows Phone\v8.1 `Icons\{Dark,Light}` | 官方 48×48 应用栏图标（Demo 在用） |
+| [microsoftarchive/WindowsPhoneToolkit](https://github.com/microsoftarchive/WindowsPhoneToolkit)（留档） | ContextMenu 菜单项规格、AlphaKeyGroup 分组参考 |
 
-## 运行 Demo
+## 从源码构建 / 运行 Demo
 
-仓库自带示例（磁贴数据、Hub/Panorama 模式切换、Pivot 详情页、应用栏与语义缩放演示页）：
+仓库自带示例应用（磁贴数据、Hub/Panorama 模式切换、Pivot 详情页、应用栏与语义缩放演示页，入口在主界面"我的"节末尾的两个磁贴）：
 
 ```shell
+# Windows 桌面
 dotnet build MetroCompanionDemo/MetroCompanionDemo.csproj -f net10.0-windows10.0.19041.0
+
 # 或部署到 Android 设备
 dotnet build MetroCompanionDemo/MetroCompanionDemo.csproj -f net10.0-android
 ```
+
+Demo 固定暗色主题（`App.xaml.cs` 中 `UserAppTheme = AppTheme.Dark`），与纯黑 Metro 页面一致；删掉该行即可恢复跟随系统主题。
 
 ## 构建 NuGet 包
 
@@ -138,6 +179,7 @@ dotnet build MetroCompanionDemo/MetroCompanionDemo.csproj -f net10.0-android
 dotnet build MetroCompanion/MetroCompanion.csproj -c Release
 dotnet pack MetroCompanion/MetroCompanion.csproj -c Release
 # 产物：MetroCompanion/bin/Release/MetroCompanion.<版本>.nupkg + .snupkg
+# 包 README 即仓库根目录的 README.md
 ```
 
 ## License
