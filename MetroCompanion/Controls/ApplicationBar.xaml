@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="MetroCompanion.Controls.ApplicationBar"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <ContentView.ControlTemplate>
+        <ControlTemplate>
+            <!-- 底部对齐：用户把本控件放进页面 Grid 末行/覆盖层即可 -->
+            <Grid x:Name="PART_Root" RowDefinitions="Auto, Auto" VerticalOptions="End">
+                <!-- 菜单区：展开时显示在按钮行上方（WP8 "…" 菜单） -->
+                <VerticalStackLayout
+                    Grid.Row="0"
+                    x:Name="PART_MenuPanel"
+                    IsVisible="False"
+                    Spacing="0" />
+
+                <!-- 按钮行：72px 高，图标按钮均分宽度，"…" 固定在右下 -->
+                <Grid Grid.Row="1" x:Name="PART_BarRow" HeightRequest="72">
+                    <Grid x:Name="PART_ButtonGrid" HorizontalOptions="Fill" VerticalOptions="Fill" />
+                    <Grid
+                        x:Name="PART_EllipsisButton"
+                        HeightRequest="48"
+                        HorizontalOptions="End"
+                        VerticalOptions="End"
+                        WidthRequest="48">
+                        <HorizontalStackLayout
+                            x:Name="PART_EllipsisDots"
+                            HorizontalOptions="Center"
+                            Spacing="4"
+                            VerticalOptions="Center">
+                            <BoxView HeightRequest="4" WidthRequest="4" />
+                            <BoxView HeightRequest="4" WidthRequest="4" />
+                            <BoxView HeightRequest="4" WidthRequest="4" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </ControlTemplate>
+    </ContentView.ControlTemplate>
+</ContentView>

@@ -44,6 +44,8 @@ namespace MetroCompanionDemo
             new("阅读", "42 篇待读", "", TileDark),
             new("主题", "深色 · 强调蓝", "", TileDark),
             new("关于", "MetroCompanion 1.0", "", TileDark),
+            new("应用栏", "ApplicationBar 演示", "", Accent),
+            new("语义缩放", "SemanticZoom 演示", "", TileDark),
         };
 
         /// <summary>按标题在所有分组中查找条目。</summary>

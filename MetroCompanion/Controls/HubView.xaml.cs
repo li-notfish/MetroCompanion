@@ -18,7 +18,7 @@ public partial class HubView : ContentView
     private bool _isAnimating;
 
     public static readonly BindableProperty BackgroundSourceProperty = BindableProperty.Create(nameof(BackgroundSource), typeof(ImageSource), typeof(HubView));
-    public static readonly BindableProperty HeaderProperty = BindableProperty.Create(nameof(Header), typeof(View), typeof(HubView));
+    public static readonly BindableProperty HeaderProperty = BindableProperty.Create(nameof(Header), typeof(View), typeof(HubView), propertyChanged: OnHeaderChanged);
     public static readonly BindableProperty IsParallaxEnabledProperty = BindableProperty.Create(nameof(IsParallaxEnabled), typeof(bool), typeof(HubView), true);
     public static readonly BindableProperty IsPanoramaModeProperty = BindableProperty.Create(nameof(IsPanoramaMode), typeof(bool), typeof(HubView), false, propertyChanged: OnIsPanoramaModeChanged);
     public static readonly BindableProperty PanoramaTitleProperty = BindableProperty.Create(nameof(PanoramaTitle), typeof(string), typeof(HubView), propertyChanged: OnPanoramaTitleChanged);
@@ -78,6 +78,20 @@ public partial class HubView : ContentView
         RefreshSections();
 
         Dispatcher.Dispatch(() => UpdateLayout());
+    }
+
+    private static void OnHeaderChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        // Header 经 ContentPresenter + TemplateBinding 挂入，无逻辑父级，BindingContext 需显式传播
+        if (bindable is HubView hub && newValue is View header)
+            header.BindingContext = hub.BindingContext;
+    }
+
+    protected override void OnBindingContextChanged()
+    {
+        base.OnBindingContextChanged();
+        if (Header != null)
+            Header.BindingContext = BindingContext;
     }
 
     private static void OnIsPanoramaModeChanged(BindableObject bindable, object oldValue, object newValue)

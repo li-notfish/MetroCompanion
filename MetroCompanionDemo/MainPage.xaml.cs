@@ -25,8 +25,22 @@ namespace MetroCompanionDemo
 
         private async void OnItemTapped(object sender, TappedEventArgs e)
         {
-            if (sender is BindableObject { BindingContext: DemoItem item })
-                await Shell.Current.GoToAsync($"{nameof(PivotDemoPage)}?item={Uri.EscapeDataString(item.Title)}");
+            if (sender is not BindableObject { BindingContext: DemoItem item })
+                return;
+
+            // 新控件演示入口磁贴
+            if (item.Title == "应用栏")
+            {
+                await Shell.Current.GoToAsync(nameof(AppBarDemoPage));
+                return;
+            }
+            if (item.Title == "语义缩放")
+            {
+                await Shell.Current.GoToAsync(nameof(SemanticZoomDemoPage));
+                return;
+            }
+
+            await Shell.Current.GoToAsync($"{nameof(PivotDemoPage)}?item={Uri.EscapeDataString(item.Title)}");
         }
     }
 }

@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MetroCompanionDemo.AppBarDemoPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion"
+    BackgroundColor="#000000">
+
+    <Grid RowDefinitions="Auto, Auto, *, Auto">
+        <Button
+            x:Name="BackBtn"
+            Margin="12,8,0,0"
+            Padding="12,4"
+            BackgroundColor="Transparent"
+            BorderColor="Transparent"
+            Clicked="OnBackClicked"
+            FontSize="16"
+            HorizontalOptions="Start"
+            Text="‹ 返回"
+            TextColor="White" />
+
+        <!-- 规格/模式演示控制条 -->
+        <HorizontalStackLayout
+            Grid.Row="1"
+            Margin="12,4,12,8"
+            Spacing="8">
+            <Button
+                x:Name="ModeBtn"
+                Padding="12,4"
+                BackgroundColor="#FF1F1F1F"
+                Clicked="OnModeToggleClicked"
+                FontSize="14"
+                Text="Minimized 模式"
+                TextColor="White" />
+            <Button
+                x:Name="OpacityBtn"
+                Padding="12,4"
+                BackgroundColor="#FF1F1F1F"
+                Clicked="OnOpacityToggleClicked"
+                FontSize="14"
+                Text="Opacity 0.5"
+                TextColor="White" />
+            <Label
+                x:Name="StatusLabel"
+                FontSize="14"
+                VerticalOptions="Center"
+                TextColor="{DynamicResource MetroSubtleForegroundColor}" />
+        </HorizontalStackLayout>
+
+        <!-- 内容区：点击空白处收起"…"菜单；右键（Windows）/长按（移动端）呼出菜单 -->
+        <Grid Grid.Row="2" mcm:ApplicationBar.MenuTrigger="{x:Reference Bar}">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnPageTapped" />
+            </Grid.GestureRecognizers>
+            <CollectionView
+                x:Name="ContentList"
+                Margin="0,8,0,0"
+                ItemsSource="{Binding .}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="24,8" ColumnDefinitions="Auto,*">
+                            <BoxView
+                                Color="{DynamicResource MetroAccentColor}"
+                                HeightRequest="34"
+                                VerticalOptions="Center"
+                                WidthRequest="4" />
+                            <StackLayout Grid.Column="1" Padding="12,0,0,0">
+                                <Label FontSize="19" Text="{Binding Title}" TextColor="White" />
+                                <Label
+                                    FontSize="13"
+                                    Text="{Binding Subtitle}"
+                                    TextColor="{DynamicResource MetroSubtleForegroundColor}" />
+                            </StackLayout>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+
+        <!-- WP8 应用栏：3 个图标按钮（SDK 官方 PNG）+ 2 个菜单项 -->
+        <mcm:ApplicationBar x:Name="Bar" Grid.Row="3">
+            <mcm:AppBarButton
+                Activated="OnAddClicked"
+                Icon="appbar/add.png"
+                Text="添加" />
+            <mcm:AppBarButton
+                Activated="OnEditClicked"
+                Icon="appbar/edit.png"
+                Text="编辑" />
+            <mcm:AppBarButton
+                Activated="OnDeleteClicked"
+                Icon="appbar/delete.png"
+                IsEnabled="False"
+                Text="删除" />
+            <mcm:ApplicationBar.MenuItems>
+                <mcm:AppBarMenuItem Activated="OnSettingsClicked" Text="设置" />
+                <mcm:AppBarMenuItem Activated="OnAboutClicked" Text="关于" />
+            </mcm:ApplicationBar.MenuItems>
+        </mcm:ApplicationBar>
+    </Grid>
+</ContentPage>

@@ -13,8 +13,8 @@
 		<Version>1.0.0</Version>
 		<Title>MetroCompanion</Title>
 		<Authors>Onlyfish</Authors>
-		<Description>Windows Phone 8 / Windows 8 风格的 .NET MAUI 控件库：WP8.1 Pivot、Hub（含 WP8 Panorama 模式）与 Metro 设计令牌。</Description>
-		<PackageTags>maui;metro;windows-phone;wp8;wp8.1;pivot;panorama;hub;controls</PackageTags>
+		<Description>Windows Phone 8 / Windows 8 风格的 .NET MAUI 控件库：WP8.1 Pivot、Hub（含 WP8 Panorama 模式）、WP8 ApplicationBar、WinRT SemanticZoom 与 Metro 设计令牌。</Description>
+		<PackageTags>maui;metro;windows-phone;wp8;wp8.1;pivot;panorama;hub;applicationbar;appbar;semanticzoom;controls</PackageTags>
 		<PackageProjectUrl>https://github.com/li-notfish/MetroCompanion</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/li-notfish/MetroCompanion.git</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
@@ -41,7 +41,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="README.md" Pack="true" PackagePath="\" />
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -54,6 +54,12 @@
 	  <Compile Update="Behaviores\HubHorizontalScrollBehavior.cs">
 	    <ExcludeFromCurrentConfiguration>true</ExcludeFromCurrentConfiguration>
 	  </Compile>
+	  <Compile Update="Behaviores\SemanticZoomWheelBehavior.cs">
+	    <ExcludeFromCurrentConfiguration>true</ExcludeFromCurrentConfiguration>
+	  </Compile>
+	  <Compile Update="Behaviores\AppBarRightClickBehavior.cs">
+	    <ExcludeFromCurrentConfiguration>true</ExcludeFromCurrentConfiguration>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -61,6 +67,12 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\PivotView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\ApplicationBar.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Controls\SemanticZoom.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Styles\MetroTheme.xaml">

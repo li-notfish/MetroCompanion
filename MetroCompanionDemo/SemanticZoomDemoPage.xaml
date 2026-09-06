@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MetroCompanionDemo.SemanticZoomDemoPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion"
+    BackgroundColor="#000000">
+
+    <ContentPage.Resources>
+        <!-- 分组头：字母（LongListSelector 组头规格 29.333 Semilight 强调色） -->
+        <DataTemplate x:Key="GroupHeaderTemplate">
+            <Label
+                Margin="24,16,0,4"
+                FontFamily="Segoe UI Semilight"
+                FontSize="29.333"
+                Text="{Binding Key}"
+                TextColor="{DynamicResource MetroAccentColor}" />
+        </DataTemplate>
+
+        <!-- 应用磁贴：Win8 起始屏幕风格小磁贴 -->
+        <DataTemplate x:Key="AppTileTemplate">
+            <Border
+                Margin="4"
+                HeightRequest="86"
+                BackgroundColor="#B3000000"
+                StrokeThickness="0">
+                <Label
+                    Padding="10,0"
+                    FontSize="15"
+                    HorizontalOptions="Start"
+                    Text="{Binding Name}"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+            </Border>
+        </DataTemplate>
+
+        <!-- 缩小视图字母块 -->
+        <DataTemplate x:Key="LetterTemplate">
+            <Border
+                Margin="4"
+                HeightRequest="80"
+                BackgroundColor="#730078D7"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnLetterTapped" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontFamily="Segoe UI Light"
+                    FontSize="42.667"
+                    HorizontalOptions="Center"
+                    Text="{Binding Key}"
+                    TextColor="White"
+                    VerticalOptions="Center" />
+            </Border>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto">
+        <Button
+            x:Name="BackBtn"
+            Margin="12,8,0,0"
+            Padding="12,4"
+            BackgroundColor="Transparent"
+            BorderColor="Transparent"
+            Clicked="OnBackClicked"
+            FontSize="16"
+            HorizontalOptions="Start"
+            Text="‹ 返回"
+            TextColor="White" />
+
+        <mcm:SemanticZoom x:Name="Zoom" Grid.Row="1">
+            <mcm:SemanticZoom.ZoomedInView>
+                <ContentView>
+                    <CollectionView
+                        x:Name="AppsList"
+                        IsGrouped="True"
+                        ItemsSource="{Binding Groups}"
+                        ItemTemplate="{StaticResource AppTileTemplate}"
+                        GroupHeaderTemplate="{StaticResource GroupHeaderTemplate}">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout
+                                HorizontalItemSpacing="8"
+                                Orientation="Vertical"
+                                Span="3"
+                                VerticalItemSpacing="8" />
+                        </CollectionView.ItemsLayout>
+                    </CollectionView>
+                </ContentView>
+            </mcm:SemanticZoom.ZoomedInView>
+            <mcm:SemanticZoom.ZoomedOutView>
+                <ContentView>
+                    <CollectionView
+                        x:Name="LetterList"
+                        ItemsSource="{Binding Groups}"
+                        ItemTemplate="{StaticResource LetterTemplate}">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout
+                                HorizontalItemSpacing="8"
+                                Orientation="Vertical"
+                                Span="4"
+                                VerticalItemSpacing="8" />
+                        </CollectionView.ItemsLayout>
+                    </CollectionView>
+                </ContentView>
+            </mcm:SemanticZoom.ZoomedOutView>
+        </mcm:SemanticZoom>
+
+        <Label
+            Grid.Row="2"
+            Margin="24,4,24,12"
+            FontSize="13"
+            Text="捏合、Ctrl+滚轮（Windows）或右下角按钮切换视图；缩小视图点字母回到对应分组。"
+            TextColor="{DynamicResource MetroSubtleForegroundColor}" />
+    </Grid>
+</ContentPage>

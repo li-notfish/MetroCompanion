@@ -49,7 +49,10 @@ public partial class HubSection : ContentView
                 // HubSectionHeaderThemeFontWeight = Normal
                 FontFamily = MetroTokens.FontFamily,
                 TextColor = MetroTokens.ForegroundColor,
-                Margin = new Thickness(pageMargin + 12, 48, 0, 8),
+                CharacterSpacing = MetroTokens.ToCharacterSpacing(
+                    MetroTokens.HubSectionHeaderFontSize, MetroTokens.HubSectionHeaderCharacterSpacing),
+                // 横向对齐页面栅格（结构校准）；标题下方 31.5 为 SDK HubSectionHeaderMarginThickness
+                Margin = new Thickness(pageMargin + 12, 48, 0, 31.5),
                 Text = Title
             };
 
@@ -87,11 +90,14 @@ public partial class HubSection : ContentView
         }
         else
         {
-            // 后续面板只保留 PanoramaItem 小表头（WP8 真机约 45px Semilight，无竖条）
+            // 后续面板只保留 PanoramaItem 小表头（Silverlight PanoramaItemHeaderFontSize = 66，
+            // 50pt Semelight，字距 -35；无竖条）
             _showingPanoramaTitle = false;
             _titleLabel.Text = Title;
             _titleLabel.FontSize = MetroTokens.PanoramaItemHeaderFontSize;
             _titleLabel.FontFamily = MetroTokens.SemilightFontFamily;
+            _titleLabel.CharacterSpacing = MetroTokens.ToCharacterSpacing(
+                MetroTokens.PanoramaItemHeaderFontSize, MetroTokens.PanoramaItemHeaderCharacterSpacing);
             _titleLabel.Opacity = 1.0;
             _titleLabel.Margin = new Thickness(MetroTokens.PageMargin, 24, 0, 0);
         }
@@ -114,11 +120,13 @@ public partial class HubSection : ContentView
         _showingPanoramaTitle = false;
         _titleLabel.Text = Title;
 
-        // HubSectionHeaderThemeFontSize：26.667，字重 Normal
+        // HubSectionHeaderThemeFontSize：桌面 26.667 / 手机 19，字重 Normal，字距 -10
         _titleLabel.FontSize = HeaderFontSize;
         _titleLabel.FontFamily = MetroTokens.FontFamily;
+        _titleLabel.CharacterSpacing = MetroTokens.ToCharacterSpacing(
+            HeaderFontSize, MetroTokens.HubSectionHeaderCharacterSpacing);
         _titleLabel.Opacity = 1.0;
-        _titleLabel.Margin = new Thickness(MetroTokens.PageMargin + 12, 48, 0, 8);
+        _titleLabel.Margin = new Thickness(MetroTokens.PageMargin + 12, 48, 0, 31.5);
 
         if (_accentBar != null)
             _accentBar.IsVisible = true;

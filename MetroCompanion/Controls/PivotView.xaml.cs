@@ -34,6 +34,7 @@ public partial class PivotView : ContentView
     public static readonly BindableProperty TitleForegroundProperty = BindableProperty.Create(nameof(TitleForeground), typeof(Color), typeof(PivotView), Styles.MetroTokens.ForegroundColor);
 
     public static readonly BindableProperty HeaderFontSizeProperty = BindableProperty.Create(nameof(HeaderFontSize), typeof(double), typeof(PivotView), Styles.MetroTokens.PivotHeaderItemFontSize, propertyChanged: OnHeaderAppearanceChanged);
+    public static readonly BindableProperty HeaderCharacterSpacingProperty = BindableProperty.Create(nameof(HeaderCharacterSpacing), typeof(double), typeof(PivotView), Styles.MetroTokens.PivotHeaderItemCharacterSpacing, propertyChanged: OnHeaderAppearanceChanged);
     public static readonly BindableProperty HeaderForegroundProperty = BindableProperty.Create(nameof(HeaderForeground), typeof(Color), typeof(PivotView), Styles.MetroTokens.ForegroundColor, propertyChanged: OnHeaderAppearanceChanged);
     public static readonly BindableProperty UnselectedHeaderOpacityProperty = BindableProperty.Create(nameof(UnselectedHeaderOpacity), typeof(double), typeof(PivotView), Styles.MetroTokens.UnselectedHeaderOpacity);
     public static readonly BindableProperty HeaderMarginProperty = BindableProperty.Create(nameof(HeaderMargin), typeof(Thickness), typeof(PivotView), new Thickness(Styles.MetroTokens.PageMargin, 0, 0, 0), propertyChanged: OnHeaderLayoutChanged);
@@ -47,6 +48,8 @@ public partial class PivotView : ContentView
     public Color TitleForeground { get => (Color)GetValue(TitleForegroundProperty); set => SetValue(TitleForegroundProperty, value); }
 
     public double HeaderFontSize { get => (double)GetValue(HeaderFontSizeProperty); set => SetValue(HeaderFontSizeProperty, value); }
+    /// <summary>表头字距（WinRT PivotHeaderItemCharacterSpacing = -25，单位 1/1000 em）。</summary>
+    public double HeaderCharacterSpacing { get => (double)GetValue(HeaderCharacterSpacingProperty); set => SetValue(HeaderCharacterSpacingProperty, value); }
     public Color HeaderForeground { get => (Color)GetValue(HeaderForegroundProperty); set => SetValue(HeaderForegroundProperty, value); }
     public double UnselectedHeaderOpacity { get => (double)GetValue(UnselectedHeaderOpacityProperty); set => SetValue(UnselectedHeaderOpacityProperty, value); }
     public Thickness HeaderMargin { get => (Thickness)GetValue(HeaderMarginProperty); set => SetValue(HeaderMarginProperty, value); }
@@ -167,6 +170,9 @@ public partial class PivotView : ContentView
                 // PivotHeaderItemThemeFontWeight = SemiLight
                 FontFamily = Styles.MetroTokens.SemilightFontFamily,
                 TextColor = HeaderForeground,
+                // PivotHeaderItemPadding 底部 6.5：滚动条带测宽时含此留白
+                Padding = new Thickness(0, 0, 0, Styles.MetroTokens.PivotHeaderItemPaddingBottom),
+                CharacterSpacing = Styles.MetroTokens.ToCharacterSpacing(HeaderFontSize, HeaderCharacterSpacing),
                 // StackLayout 会用"剩余宽度"约束测量子元素：末表头在手机上
                 // 只剩一个字的剩余空间，默认 WordWrap 会折行后被条带行高裁掉，
                 // 强制单行保证测量宽度即完整文字宽度
@@ -443,6 +449,8 @@ public partial class PivotView : ContentView
                     label.FontSize = pivot.HeaderFontSize;
                     label.FontFamily = Styles.MetroTokens.SemilightFontFamily;
                     label.TextColor = pivot.HeaderForeground;
+                    label.CharacterSpacing = Styles.MetroTokens.ToCharacterSpacing(
+                        pivot.HeaderFontSize, pivot.HeaderCharacterSpacing);
                 }
             }
             pivot._headerExtentDirty = true;

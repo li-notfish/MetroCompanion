@@ -19,12 +19,16 @@
                     Text="{TemplateBinding Title}"
                     TextColor="{TemplateBinding TitleForeground}" />
 
-                <!-- 表头裁剪容器：只负责裁剪，表头的 TranslationX 由代码按滚动进度驱动 -->
+                <!-- 表头裁剪容器：只负责裁剪，表头的 TranslationX 由代码按滚动进度驱动。
+                     Start 对齐必需：条带被显式撑宽到内容宽度后，WinUI 的 Stretch+固定宽
+                     会把比视口窄的条带居中放置 -->
                 <ScrollView
                     Grid.Row="1"
                     x:Name="PART_HeadersClip"
                     Orientation="Neither">
-                    <HorizontalStackLayout x:Name="PART_HeadersPanel" />
+                    <HorizontalStackLayout
+                        x:Name="PART_HeadersPanel"
+                        HorizontalOptions="Start" />
                 </ScrollView>
 
                 <!-- Pivot 内容区：整页横滑，始终吸附到某一页（滚轮/键盘行为在代码隐藏按平台挂载） -->

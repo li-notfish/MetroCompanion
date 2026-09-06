@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="MetroCompanion.Controls.SemanticZoom"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <ContentView.ControlTemplate>
+        <ControlTemplate>
+            <!-- 对照 WinRT 模板：放大视图常驻，缩小视图叠放其上，右下角缩放按钮 -->
+            <Grid Background="Transparent">
+                <ContentPresenter
+                    x:Name="PART_ZoomedInPresenter"
+                    Content="{TemplateBinding ZoomedInView}"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill" />
+
+                <ContentPresenter
+                    x:Name="PART_ZoomedOutPresenter"
+                    Content="{TemplateBinding ZoomedOutView}"
+                    HorizontalOptions="Fill"
+                    InputTransparent="True"
+                    IsVisible="False"
+                    VerticalOptions="Fill" />
+
+                <!-- Win8 缩放按钮：21×21、1px 边框、右下 Margin 0,0,7,24、静止 3s 淡出 -->
+                <Border
+                    x:Name="PART_ZoomButton"
+                    HeightRequest="21"
+                    HorizontalOptions="End"
+                    Margin="0,0,7,24"
+                    StrokeThickness="1"
+                    VerticalOptions="End"
+                    WidthRequest="21"
+                    ZIndex="2">
+                    <Label
+                        x:Name="PART_ZoomButtonGlyph"
+                        FontFamily="Segoe UI Symbol"
+                        FontSize="14.667"
+                        HorizontalOptions="Center"
+                        Margin="0,0,0,1"
+                        Text="&#xE0B8;"
+                        VerticalOptions="Center" />
+                </Border>
+            </Grid>
+        </ControlTemplate>
+    </ContentView.ControlTemplate>
+</ContentView>
