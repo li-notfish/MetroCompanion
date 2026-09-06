@@ -11,8 +11,22 @@
 
 		<PackageId>MetroCompanion</PackageId>
 		<Version>1.0.0</Version>
-		<Description>Metro-style HubView control for .NET MAUI</Description>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<Title>MetroCompanion</Title>
+		<Authors>Onlyfish</Authors>
+		<Description>Windows Phone 8 / Windows 8 风格的 .NET MAUI 控件库：WP8.1 Pivot、Hub（含 WP8 Panorama 模式）与 Metro 设计令牌。</Description>
+		<PackageTags>maui;metro;windows-phone;wp8;wp8.1;pivot;panorama;hub;controls</PackageTags>
+		<PackageProjectUrl>https://github.com/li-notfish/MetroCompanion</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/li-notfish/MetroCompanion.git</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+		<!-- Release 构建时自动产出 NuGet 包 -->
+		<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
@@ -24,6 +38,10 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>
