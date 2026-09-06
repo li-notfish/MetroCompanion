@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:mcm="clr-namespace:MetroCompanion.Controls;assembly=MetroCompanion"
-    BackgroundColor="Transparent">
+    BackgroundColor="#000000">
 
     <ContentPage.Resources>
         <!-- Metro 磁贴：直角、平色，叠在壁纸上 -->
@@ -78,8 +78,7 @@
         <mcm:HubView
             x:Name="Hub"
             Grid.Row="1"
-            PanoramaTitle="旅程"
-            BackgroundSource="bg.jpg">
+            PanoramaTitle="旅程">
             <mcm:HubSection Title="旅程">
                 <CollectionView ItemsSource="{Binding Trips}" ItemTemplate="{StaticResource TileTemplate}">
                     <CollectionView.ItemsLayout>
