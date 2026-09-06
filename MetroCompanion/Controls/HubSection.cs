@@ -19,7 +19,8 @@ public partial class HubSection : ContentView
     public HubSection()
     {
         VerticalOptions = LayoutOptions.Fill;
-        ControlTemplate = new ControlTemplate(() => {
+        ControlTemplate = new ControlTemplate(() =>
+        {
             double pageMargin = MetroTokens.PageMargin;
             var grid = new Grid
             {
