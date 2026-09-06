@@ -25,9 +25,9 @@ public class PivotSelectionChangedEventArgs : EventArgs
     public int SelectedIndex { get; }
     public PivotItem SelectedItem { get; }
     public int PreviousIndex { get; }
-    public PivotItem PreviousItem { get; }
+    public PivotItem? PreviousItem { get; }
 
-    public PivotSelectionChangedEventArgs(int selectedIndex, PivotItem selectedItem, int previousIndex, PivotItem previousItem)
+    public PivotSelectionChangedEventArgs(int selectedIndex, PivotItem selectedItem, int previousIndex, PivotItem? previousItem)
     {
         SelectedIndex = selectedIndex;
         SelectedItem = selectedItem;

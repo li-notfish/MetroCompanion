@@ -21,6 +21,8 @@ public static class MetroTokens
     public static string FontFamily => "Segoe UI";
     /// <summary>Semibold 字重（Windows 下以独立字体家族名生效）。</summary>
     public static string SemiboldFontFamily => "Segoe UI Semibold";
+    /// <summary>Semilight 字重（Pivot 表头规格 PivotHeaderItemThemeFontWeight）。</summary>
+    public static string SemilightFontFamily => "Segoe UI Semilight";
     /// <summary>Light 字重（大标题用）。</summary>
     public static string LightFontFamily => "Segoe UI Light";
 

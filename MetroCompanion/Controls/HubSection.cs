@@ -1,12 +1,11 @@
-using System.Windows.Input;
 using MetroCompanion.Styles;
 
 namespace MetroCompanion.Controls;
 
 public partial class HubSection : ContentView
 {
-    private Label _titleLabel;
-    private BoxView _accentBar;
+    private Label? _titleLabel;
+    private BoxView? _accentBar;
 
     public static readonly BindableProperty TitleProperty = BindableProperty.Create(nameof(Title), typeof(string), typeof(HubSection), "Section", propertyChanged: OnTitleChanged);
     public static readonly BindableProperty HeaderFontSizeProperty = BindableProperty.Create(nameof(HeaderFontSize), typeof(double), typeof(HubSection), MetroTokens.HubSectionHeaderFontSize);
@@ -46,7 +45,8 @@ public partial class HubSection : ContentView
             _titleLabel = new Label
             {
                 FontSize = MetroTokens.HubSectionHeaderFontSize,
-                FontFamily = MetroTokens.SemiboldFontFamily,
+                // HubSectionHeaderThemeFontWeight = Normal
+                FontFamily = MetroTokens.FontFamily,
                 TextColor = MetroTokens.ForegroundColor,
                 Margin = new Thickness(pageMargin + 12, 48, 0, 8),
                 Text = Title
@@ -90,7 +90,7 @@ public partial class HubSection : ContentView
             _showingPanoramaTitle = false;
             _titleLabel.Text = Title;
             _titleLabel.FontSize = MetroTokens.PanoramaItemHeaderFontSize;
-            _titleLabel.FontFamily = MetroTokens.LightFontFamily;
+            _titleLabel.FontFamily = MetroTokens.SemilightFontFamily;
             _titleLabel.Opacity = 1.0;
             _titleLabel.Margin = new Thickness(MetroTokens.PageMargin, 24, 0, 0);
         }
@@ -113,9 +113,9 @@ public partial class HubSection : ContentView
         _showingPanoramaTitle = false;
         _titleLabel.Text = Title;
 
-        // HubSectionHeaderThemeFontSize：26.667 Semibold
+        // HubSectionHeaderThemeFontSize：26.667，字重 Normal
         _titleLabel.FontSize = HeaderFontSize;
-        _titleLabel.FontFamily = MetroTokens.SemiboldFontFamily;
+        _titleLabel.FontFamily = MetroTokens.FontFamily;
         _titleLabel.Opacity = 1.0;
         _titleLabel.Margin = new Thickness(MetroTokens.PageMargin + 12, 48, 0, 8);
 

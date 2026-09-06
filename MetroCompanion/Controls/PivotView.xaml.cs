@@ -14,13 +14,13 @@ namespace MetroCompanion.Controls;
 [ContentProperty(nameof(Items))]
 public partial class PivotView : ContentView
 {
-    private Label _titleLabel;
-    private ScrollView _headersClip;
-    private HorizontalStackLayout _headersPanel;
-    private ScrollView _scrollView;
-    private HorizontalStackLayout _itemsContainer;
+    private Label? _titleLabel;
+    private ScrollView? _headersClip;
+    private HorizontalStackLayout? _headersPanel;
+    private ScrollView? _scrollView;
+    private HorizontalStackLayout? _itemsContainer;
 
-    private IDispatcherTimer _snapTimer;
+    private IDispatcherTimer? _snapTimer;
     private DateTime _lastScrollCommandTime = DateTime.MinValue;
     private bool _isAnimating;
     private bool _isSyncingSelection;
@@ -57,7 +57,7 @@ public partial class PivotView : ContentView
 
     public ObservableCollection<PivotItem> Items { get; } = new();
 
-    public event EventHandler<PivotSelectionChangedEventArgs> SelectionChanged;
+    public event EventHandler<PivotSelectionChangedEventArgs>? SelectionChanged;
 
     public PivotView()
     {
@@ -66,12 +66,15 @@ public partial class PivotView : ContentView
         SizeChanged += (s, e) => UpdateLayout();
         Unloaded += OnPivotUnloaded;
 
-        _snapTimer = Application.Current.Dispatcher.CreateTimer();
-        _snapTimer.Interval = TimeSpan.FromMilliseconds(300);
-        _snapTimer.Tick += OnSnapTimerTick;
+        if (Application.Current != null)
+        {
+            _snapTimer = Application.Current.Dispatcher.CreateTimer();
+            _snapTimer.Interval = TimeSpan.FromMilliseconds(300);
+            _snapTimer.Tick += OnSnapTimerTick;
+        }
     }
 
-    private void OnPivotUnloaded(object sender, EventArgs e)
+    private void OnPivotUnloaded(object? sender, EventArgs e)
     {
         _snapTimer?.Stop();
         _snapTimer = null;
@@ -111,7 +114,7 @@ public partial class PivotView : ContentView
         Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(200), () => _ = PlayEntranceAnimation());
     }
 
-    private void OnItemsChanged(object sender, NotifyCollectionChangedEventArgs e) => RefreshItems();
+    private void OnItemsChanged(object? sender, NotifyCollectionChangedEventArgs e) => RefreshItems();
 
     private void RefreshItems()
     {
@@ -161,7 +164,8 @@ public partial class PivotView : ContentView
             {
                 Text = item.Header?.ToString() ?? string.Empty,
                 FontSize = HeaderFontSize,
-                FontFamily = Styles.MetroTokens.FontFamily,
+                // PivotHeaderItemThemeFontWeight = SemiLight
+                FontFamily = Styles.MetroTokens.SemilightFontFamily,
                 TextColor = HeaderForeground,
                 // StackLayout 会用"剩余宽度"约束测量子元素：末表头在手机上
                 // 只剩一个字的剩余空间，默认 WordWrap 会折行后被条带行高裁掉，
@@ -209,7 +213,7 @@ public partial class PivotView : ContentView
         });
     }
 
-    private void OnScrolled(object sender, ScrolledEventArgs e)
+    private void OnScrolled(object? sender, ScrolledEventArgs e)
     {
         UpdateHeaderStrip(e.ScrollX);
 
@@ -254,7 +258,7 @@ public partial class PivotView : ContentView
     }
 
     private double GetHeaderPosition(int index)
-        => _headersPanel.Children[index] is VisualElement v ? v.X : 0;
+        => _headersPanel != null && _headersPanel.Children[index] is VisualElement v ? v.X : 0;
 
     /// <summary>
     /// 让表头 <paramref name="index"/> 完整落在视口内所需的最小条带左移量。
@@ -262,7 +266,7 @@ public partial class PivotView : ContentView
     /// </summary>
     private double GetHeaderShift(int index, double viewportWidth, double marginLeft, double maxShift)
     {
-        if (viewportWidth <= 0 || index >= _headersPanel.Children.Count)
+        if (viewportWidth <= 0 || _headersPanel == null || index >= _headersPanel.Children.Count)
             return 0;
 
         double pos = GetHeaderPosition(index);
@@ -297,7 +301,7 @@ public partial class PivotView : ContentView
         return _headersPanel.WidthRequest;
     }
 
-    private void OnSnapTimerTick(object sender, EventArgs e)
+    private void OnSnapTimerTick(object? sender, EventArgs e)
     {
         _snapTimer?.Stop();
         if (_scrollView == null || Items.Count == 0 || _pageWidth <= 0) return;
@@ -379,11 +383,11 @@ public partial class PivotView : ContentView
         {
             double progress = Math.Min((double)sw.ElapsedMilliseconds / durationMs, 1.0);
             double eased = CubicOut(progress);
-            _scrollView.ScrollToAsync(startX + (targetX - startX) * eased, 0, false);
+            _ = _scrollView.ScrollToAsync(startX + (targetX - startX) * eased, 0, false);
             await Task.Delay(frameDelayMs);
         }
 
-        _scrollView.ScrollToAsync(targetX, 0, false);
+        _ = _scrollView.ScrollToAsync(targetX, 0, false);
         UpdateHeaderStrip(targetX);
         _isAnimating = false;
     }
@@ -415,8 +419,8 @@ public partial class PivotView : ContentView
         if (delayMs > 0)
             await Task.Delay(delayMs);
         await Task.WhenAll(
-            element.TranslateTo(0, 0, duration, Easing.CubicOut),
-            element.FadeTo(1, duration, Easing.CubicOut));
+            element.TranslateToAsync(0, 0, duration, Easing.CubicOut),
+            element.FadeToAsync(1, duration, Easing.CubicOut));
     }
 
     private static object CoerceIndex(BindableObject bindable, object value)
@@ -437,7 +441,7 @@ public partial class PivotView : ContentView
                 if (child is Label label)
                 {
                     label.FontSize = pivot.HeaderFontSize;
-                    label.FontFamily = Styles.MetroTokens.FontFamily;
+                    label.FontFamily = Styles.MetroTokens.SemilightFontFamily;
                     label.TextColor = pivot.HeaderForeground;
                 }
             }
@@ -466,7 +470,7 @@ public partial class PivotView : ContentView
     {
         if (bindable is PivotView pivot && !pivot._isSyncingSelection)
         {
-            int index = pivot.Items.IndexOf(newValue as PivotItem);
+            int index = newValue is PivotItem item ? pivot.Items.IndexOf(item) : -1;
             if (index >= 0)
                 pivot.NavigateTo(index);
         }

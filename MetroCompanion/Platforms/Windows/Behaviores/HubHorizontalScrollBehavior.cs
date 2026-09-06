@@ -12,8 +12,8 @@ namespace MetroCompanion.Behaviores
     // 这里显式使用 MAUI 的 ScrollView 和 Windows 的 ScrollViewer (WinScrollViewer)
     public partial class HubHorizontalScrollBehavior : PlatformBehavior<Microsoft.Maui.Controls.ScrollView, WUC.ScrollViewer>
     {
-        private Microsoft.Maui.Controls.ScrollView _mauiScrollView;
-        private WinScrollViewer _nativeScroll;
+        private Microsoft.Maui.Controls.ScrollView? _mauiScrollView;
+        private WinScrollViewer? _nativeScroll;
 
         // StepByPage 定义在根目录的分部类存根中，两个 TFM 共用
 
@@ -64,7 +64,7 @@ namespace MetroCompanion.Behaviores
             _nativeScroll = null;
         }
 
-        private void OnNativeViewChanging(object sender, WUC.ScrollViewerViewChangingEventArgs e)
+        private void OnNativeViewChanging(object? sender, WUC.ScrollViewerViewChangingEventArgs e)
         {
             // 只处理惯性阶段：拖拽中 NextView == FinalView，惯性中 FinalView 是
             // WinUI 的预测落点。落点不在整页上时立即用短促动画接管（设置偏移
@@ -120,9 +120,9 @@ namespace MetroCompanion.Behaviores
             if (!props.IsHorizontalMouseWheel)
             {
                 double delta = props.MouseWheelDelta;
-                double pageWidth = _nativeScroll.ViewportWidth;
+                double pageWidth = nativeScroll.ViewportWidth;
                 if (pageWidth <= 0) return;
-                double maxScroll = _nativeScroll.ExtentWidth - pageWidth;
+                double maxScroll = nativeScroll.ExtentWidth - pageWidth;
 
                 if (StepByPage)
                 {
@@ -135,7 +135,7 @@ namespace MetroCompanion.Behaviores
                     }
 
                     _lastWheelPageSwitch = DateTime.Now;
-                    int currentIndex = (int)Math.Round(_nativeScroll.HorizontalOffset / pageWidth);
+                    int currentIndex = (int)Math.Round(nativeScroll.HorizontalOffset / pageWidth);
                     int direction = delta > 0 ? -1 : 1;
                     double targetX = Math.Clamp((currentIndex + direction) * pageWidth, 0, maxScroll);
 
@@ -145,8 +145,8 @@ namespace MetroCompanion.Behaviores
                 }
 
                 // Hub 模式：随滚轮连续平移
-                double target = Math.Clamp(_nativeScroll.HorizontalOffset - delta, 0, maxScroll);
-                _nativeScroll.ScrollToHorizontalOffset(target);
+                double target = Math.Clamp(nativeScroll.HorizontalOffset - delta, 0, maxScroll);
+                nativeScroll.ScrollToHorizontalOffset(target);
 
                 // 标记已处理，防止触发系统的垂直滚动
                 e.Handled = true;

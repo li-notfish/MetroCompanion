@@ -7,11 +7,12 @@
         <ControlTemplate>
             <Grid Background="Transparent"
                   RowDefinitions="Auto, Auto, *">
-                <!-- WP8.1 Pivot 大标题 -->
+                <!-- WP8.1 Pivot 大标题（PivotTitleThemeFontWeight = Bold） -->
                 <Label
                     Grid.Row="0"
                     x:Name="PART_Title"
                     Margin="24,12,24,4"
+                    FontAttributes="Bold"
                     FontSize="{TemplateBinding TitleFontSize}"
                     LineBreakMode="TailTruncation"
                     MaxLines="1"

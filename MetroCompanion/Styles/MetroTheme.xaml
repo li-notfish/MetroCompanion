@@ -12,6 +12,7 @@
 
     <x:String x:Key="MetroFontFamily">Segoe UI</x:String>
     <x:String x:Key="MetroSemiboldFontFamily">Segoe UI Semibold</x:String>
+    <x:String x:Key="MetroSemilightFontFamily">Segoe UI Semilight</x:String>
     <x:String x:Key="MetroLightFontFamily">Segoe UI Light</x:String>
 
     <!--  桌面默认值；手机端控件运行时取 MetroTokens 的自适应值  -->

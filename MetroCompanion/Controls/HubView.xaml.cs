@@ -9,11 +9,11 @@ namespace MetroCompanion.Controls;
 [ContentProperty(nameof(Sections))]
 public partial class HubView : ContentView
 {
-    private Image _parallaxBg;
-    private ScrollView _scrollView;
-    private HorizontalStackLayout _sectionsContainer;
+    private Image? _parallaxBg;
+    private ScrollView? _scrollView;
+    private HorizontalStackLayout? _sectionsContainer;
 
-    private IDispatcherTimer _snapTimer;
+    private IDispatcherTimer? _snapTimer;
     private DateTime _lastSnapTime = DateTime.MinValue;
     private bool _isAnimating;
 
@@ -41,12 +41,15 @@ public partial class HubView : ContentView
         SizeChanged += (s, e) => UpdateLayout();
         this.Unloaded += OnUnloaded;
 
-        _snapTimer = Application.Current.Dispatcher.CreateTimer();
-        _snapTimer.Interval = TimeSpan.FromMilliseconds(300);
-        _snapTimer.Tick += OnSnapTimerTick;
+        if (Application.Current != null)
+        {
+            _snapTimer = Application.Current.Dispatcher.CreateTimer();
+            _snapTimer.Interval = TimeSpan.FromMilliseconds(300);
+            _snapTimer.Tick += OnSnapTimerTick;
+        }
     }
 
-    private void OnUnloaded(object sender, EventArgs e)
+    private void OnUnloaded(object? sender, EventArgs e)
     {
         _snapTimer?.Stop();
         _snapTimer = null;
@@ -62,13 +65,16 @@ public partial class HubView : ContentView
         _scrollView = GetTemplateChild("PART_ScrollView") as ScrollView;
         _sectionsContainer = GetTemplateChild("PART_SectionsContainer") as HorizontalStackLayout;
 
-        if (_scrollView != null) _scrollView.Scrolled += OnScrolled;
+        if (_scrollView != null)
+        {
+            _scrollView.Scrolled += OnScrolled;
 #if WINDOWS
-        // 滚轮行为以代码挂载：模板内 OnPlatform<Behavior> 在 Release AOT 下会
-        // 尝试实例化抽象 Behavior 导致崩溃
-        if (_scrollView != null && _scrollView.Behaviors.Count == 0)
-            _scrollView.Behaviors.Add(new HubHorizontalScrollBehavior());
+            // 滚轮行为以代码挂载：模板内 OnPlatform<Behavior> 在 Release AOT 下会
+            // 尝试实例化抽象 Behavior 导致崩溃
+            if (_scrollView.Behaviors.Count == 0)
+                _scrollView.Behaviors.Add(new HubHorizontalScrollBehavior());
 #endif
+        }
         RefreshSections();
 
         Dispatcher.Dispatch(() => UpdateLayout());
@@ -85,7 +91,6 @@ public partial class HubView : ContentView
         if (bindable is HubView hub && hub.IsPanoramaMode)
             hub.ApplySectionStyles();
     }
-
     private void ApplySectionStyles()
     {
         // WP8 Panorama：仅第一面板显示控件级大标题，其余面板为小表头
@@ -98,7 +103,7 @@ public partial class HubView : ContentView
         }
     }
 
-    private void OnSectionsChanged(object sender, NotifyCollectionChangedEventArgs e) => RefreshSections();
+    private void OnSectionsChanged(object? sender, NotifyCollectionChangedEventArgs e) => RefreshSections();
 
     private void RefreshSections()
     {
@@ -131,7 +136,7 @@ public partial class HubView : ContentView
             _parallaxBg.WidthRequest = Width + (_sectionsContainer.Width * 0.2);
     }
 
-    private void OnScrolled(object sender, ScrolledEventArgs e)
+    private void OnScrolled(object? sender, ScrolledEventArgs e)
     {
         if (IsParallaxEnabled && _parallaxBg != null)
         {
@@ -153,7 +158,7 @@ public partial class HubView : ContentView
         _snapTimer?.Start();
     }
 
-    private void OnSnapTimerTick(object sender, EventArgs e)
+    private void OnSnapTimerTick(object? sender, EventArgs e)
     {
         _snapTimer?.Stop();
 
@@ -219,11 +224,11 @@ public partial class HubView : ContentView
             double progress = Math.Min((double)sw.ElapsedMilliseconds / durationMs, 1.0);
             double eased = CubicOut(progress);
             double currentX = startX + (targetX - startX) * eased;
-            _scrollView.ScrollToAsync(currentX, 0, false);
+            _ = _scrollView.ScrollToAsync(currentX, 0, false);
             await Task.Delay(frameDelayMs);
         }
 
-        _scrollView.ScrollToAsync(targetX, 0, false);
+        _ = _scrollView.ScrollToAsync(targetX, 0, false);
         _isAnimating = false;
     }
 
@@ -236,23 +241,26 @@ public partial class HubView : ContentView
     {
         if (_sectionsContainer == null) return;
         int delay = 0;
+        var tasks = new List<Task>();
         foreach (var child in _sectionsContainer.Children)
         {
             if (child is VisualElement el)
             {
                 el.Opacity = 0;
                 el.TranslationX = 200;
-                _ = Task.Run(async () => {
-                    await Task.Delay(delay);
-                    MainThread.BeginInvokeOnMainThread(async () => {
-                        await Task.WhenAll(
-                            el.TranslateTo(0, 0, 800, Easing.CubicOut),
-                            el.FadeTo(1, 800, Easing.CubicOut)
-                        );
-                    });
-                });
+                tasks.Add(AnimateIn(el, delay));
                 delay += 100;
             }
         }
+        await Task.WhenAll(tasks);
+    }
+
+    private static async Task AnimateIn(VisualElement el, int delayMs)
+    {
+        if (delayMs > 0)
+            await Task.Delay(delayMs);
+        await Task.WhenAll(
+            el.TranslateToAsync(0, 0, 800, Easing.CubicOut),
+            el.FadeToAsync(1, 800, Easing.CubicOut));
     }
 }
